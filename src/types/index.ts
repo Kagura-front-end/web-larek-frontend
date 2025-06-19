@@ -1,0 +1,96 @@
+// Базовые типы
+export type UUID = string;
+export type Price = number | null;
+export type Category = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
+
+// Товар
+export interface IProductItem {
+	id: UUID;
+	description: string;
+	image: string;
+	title: string;
+	category: Category;
+	price: Price;
+}
+
+// Ответ API для списка товаров
+export interface IProductListResponse {
+	total: number;
+	items: IProductItem[];
+}
+
+// Данные корзины
+export interface IBasketItem extends IProductItem {
+	index: number;
+}
+
+export interface IBasket {
+	items: IBasketItem[];
+	total: number;
+}
+
+// Данные заказа
+export type PaymentMethod = 'online' | 'offline';
+
+export interface IOrderForm {
+	payment: PaymentMethod;
+	address: string;
+	email: string;
+	phone: string;
+}
+
+export interface IOrder extends IOrderForm {
+	items: UUID[];
+	total: number;
+}
+
+// Ответ API при оформлении заказа
+export interface IOrderResponse {
+	id: UUID;
+	total: number;
+}
+
+// Состояние приложения
+export interface IAppState {
+	catalog: IProductItem[];
+	basket: IBasketItem[];
+	order: IOrder | null;
+	preview: string | null;
+}
+
+// События приложения
+export type FormErrors = Partial<Record<keyof IOrder, string>>;
+
+export interface IAppEvents {
+	'items:changed': IProductItem[];
+	'basket:changed': IBasket;
+	'preview:changed': IProductItem;
+	'order:ready': IOrder;
+	'order:submit': void;
+	'order:success': IOrderResponse;
+	'formErrors:change': FormErrors;
+	'contacts:submit': void;
+	'payment:change': PaymentMethod;
+}
+
+// Типы для модальных окон
+export type ModalType = 'preview' | 'basket' | 'order' | 'contacts' | 'success';
+
+// Типы для API
+export type ApiResponse<T> = {
+	success: boolean;
+	data?: T;
+	error?: string;
+};
+
+export type CategoryMapping = {
+	[key in Category]: string;
+};
+
+export const categoryMapping: CategoryMapping = {
+	'софт-скил': 'soft',
+	'другое': 'other',
+	'дополнительное': 'additional',
+	'кнопка': 'button',
+	'хард-скил': 'hard'
+};
