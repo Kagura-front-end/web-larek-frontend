@@ -50,3 +50,30 @@ npm run build
 ```
 yarn build
 ```
+
+ Где в проекте Model / View / Presenter
+
+✅ Model
+src/types/index.ts — типы моделей данных.
+
+src/components/base/api.ts — взаимодействие с API.
+
+src/utils/constants.ts, .env — конфигурация API.
+
+API: GET /product, GET /product/:id, POST /order — всё, что получает или отправляет данные.
+
+✅ View
+index.html + шаблоны (<template id="...">) — представление.
+
+styles.scss — стилизация интерфейса.
+
+Компоненты модальных окон, карточек, корзины — HTML и взаимодействие с DOM.
+
+✅ Presenter
+src/index.ts (точка входа, где ты скорее всего инициируешь обработчики).
+
+events.ts — EventEmitter, который управляет реакцией на действия пользователя.
+
+utils.ts — функции, которые помогают Presenter управлять DOM.
+
+

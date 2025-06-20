@@ -94,3 +94,4 @@ export const categoryMapping: CategoryMapping = {
 	'кнопка': 'button',
 	'хард-скил': 'hard'
 };
+
