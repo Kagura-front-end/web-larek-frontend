@@ -48,4 +48,14 @@ export class PreviewView implements IView<IProductItem> {
   public close(): void {
     this.modal.classList.remove('modal_active');
   }
+
+  public bindAddToCart(handler: (id: string) => void): void {
+    this.container.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('card__button')) {
+        const id = target.dataset.id;
+        if (id) handler(id);
+      }
+    });
+  }
 }

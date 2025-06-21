@@ -44,9 +44,8 @@ export class PreviewView implements IView<IProductItem> {
     this.container.appendChild(card);
     this.modal.classList.add('modal_active');
   }
-}
 
-public close(): void {
-  this.modal.classList.remove('modal_active');
-}
+  public close(): void {
+    this.modal.classList.remove('modal_active');
+  }
 }

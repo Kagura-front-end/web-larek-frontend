@@ -17,6 +17,10 @@ export class PreviewPresenter {
       this.view.render(item);
     });
 
+    this.view.bindAddToCart((id: string) => {
+      this.events.emit('basket:add', { id });
+    });
+
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
       if (target.classList.contains('modal__close')) {
