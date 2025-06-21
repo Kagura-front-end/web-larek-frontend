@@ -14,12 +14,12 @@ export class ProductCard {
     card.querySelector('.card__category')!.textContent = this.item.category;
     card.querySelector('.card__title')!.textContent = this.item.title;
     card.querySelector('.card__price')!.textContent = this.item.price ? `${this.item.price} синапсов` : 'Бесценно';
-    const normalizedImage = this.item.image.replace(/^\/+/, '');
-    console.log('API_ORIGIN =', process.env.API_ORIGIN);
-    console.log('image path =', `${process.env.API_ORIGIN}/static/${normalizedImage}`);
+    const imageName = this.item.image.replace(/^\/+/, ''); // удалим все слеши в начале
 
-    (card.querySelector('.card__image') as HTMLImageElement).src =
-      `${process.env.API_ORIGIN}/static/${normalizedImage}`;
+    const imageUrl = new URL(`/static/${imageName}`, process.env.API_ORIGIN);
+    console.log('Image URL:', imageUrl.toString());
+
+    (card.querySelector('.card__image') as HTMLImageElement).src = imageUrl.toString();
     card.setAttribute('data-id', this.item.id);
     return card;
   }

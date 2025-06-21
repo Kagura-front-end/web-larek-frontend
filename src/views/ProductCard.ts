@@ -5,6 +5,7 @@ export class ProductCard {
 
   public render(): HTMLElement {
     const template = document.getElementById('card-catalog') as HTMLTemplateElement;
+
     if (!template) {
       throw new Error('Card template not found');
     }
@@ -13,14 +14,21 @@ export class ProductCard {
 
     card.querySelector('.card__category')!.textContent = this.item.category;
     card.querySelector('.card__title')!.textContent = this.item.title;
-    card.querySelector('.card__price')!.textContent = this.item.price ? `${this.item.price} синапсов` : 'Бесценно';
-    const imageName = this.item.image.replace(/^\/+/, ''); // удалим все слеши в начале
+    card.querySelector('.card__price')!.textContent = this.item.price
+      ? `${this.item.price} синапсов`
+      : 'Бесценно';
 
+    const imageName = this.item.image.replace(/^\/+/, ''); // Удалить начальные слэши
     const imageUrl = new URL(`/static/${imageName}`, process.env.API_ORIGIN);
-    console.log('Image URL:', imageUrl.toString());
 
-    (card.querySelector('.card__image') as HTMLImageElement).src = imageUrl.toString();
+    const imageEl = card.querySelector('.card__image') as HTMLImageElement;
+    if (imageEl) {
+      imageEl.src = imageUrl.toString();
+      imageEl.alt = this.item.title;
+    }
+
     card.setAttribute('data-id', this.item.id);
+
     return card;
   }
 }
