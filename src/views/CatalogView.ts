@@ -1,7 +1,8 @@
 import { IProductItem } from '../types';
 import { ProductCard } from './ProductCard';
+import { IView } from '../interfaces/IView';
 
-export class CatalogView {
+export class CatalogView implements IView<IProductItem[]> {
   private container: HTMLElement;
 
   constructor(containerSelector: string) {

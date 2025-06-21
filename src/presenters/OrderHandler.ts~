@@ -18,7 +18,7 @@ export class OrderHandler {
         return;
       }
 
-      this.api.post('/order', order)
+      this.api.post<IOrderResponse>('/order', order)
         .then((response) => this.events.emit('order:success', response))
         .catch((err) => {
           console.error('Order submit failed:', err);
@@ -31,7 +31,7 @@ export class OrderHandler {
 
     if (!order.address?.trim()) errors.address = 'Введите адрес';
     if (!order.email?.includes('@')) errors.email = 'Некорректный email';
-    if (!order.phone?.match(/^\\+?\\d{10,15}$/)) errors.phone = 'Некорректный номер';
+    if (!order.phone?.match(/^\+?\d{10,15}$/)) errors.phone = 'Некорректный номер';
     if (!order.payment) errors.payment = 'Выберите способ оплаты';
 
     return errors;

@@ -3,18 +3,33 @@ import { CatalogController } from './CatalogController';
 import { BasketService } from './BasketService';
 import { OrderHandler } from './OrderHandler';
 import { EventEmitter } from '../components/base/events';
+import { ApiService } from '../components/base/ApiService';
+import { ModalManager } from '../views/ModalManager';
 
 export class AppPresenter {
   private catalog: CatalogController;
   private basket: BasketService;
   private order: OrderHandler;
+  private api: ApiService;
+  private modals: ModalManager;
+
 
   constructor(private events: EventEmitter) {
-    const catalogView = new CatalogView('.gallery'); // 👈 подключаем view
+    const catalogView = new CatalogView('.gallery');
+    this.api = new ApiService(process.env.API_ORIGIN + '/api/weblarek');
 
-    this.catalog = new CatalogController(this.events, catalogView);
+    this.catalog = new CatalogController({
+      api: this.api,
+      events: this.events,
+      view: catalogView,
+    });
+
     this.basket = new BasketService(this.events);
-    this.order = new OrderHandler(this.events);
+    this.modals = new ModalManager();
+    this.order = new OrderHandler({
+      api: this.api,
+      events: this.events,
+    });
   }
 
   public init(): void {

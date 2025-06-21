@@ -1,39 +1,31 @@
 import { EventEmitter } from '../components/base/events';
-import { Api } from '../components/base/api';
-import { IOrder, IOrderResponse, FormErrors } from '../types';
+import { ApiService } from '../components/base/ApiService';
+import { IOrder, IOrderResponse } from '../types';
+import { OrderValidator } from '../validators/OrderValidator';
+
+export interface IOrderHandlerConstructor {
+  api: ApiService;
+  events: EventEmitter;
+}
 
 export class OrderHandler {
-  private api: Api;
-
-  constructor(private events: EventEmitter) {
-    this.api = new Api(process.env.API_ORIGIN + '/api/weblarek');
-  }
+  constructor(private options: IOrderHandlerConstructor) {}
 
   public init(): void {
-    this.events.on<IOrder>('order:submit', (order) => {
-      const errors = this.validateOrder(order);
+    this.options.events.on<IOrder>('order:submit', async (order) => {
+      const errors = OrderValidator.validate(order);
 
       if (Object.keys(errors).length > 0) {
-        this.events.emit('formErrors:change', errors);
+        this.options.events.emit('formErrors:change', errors);
         return;
       }
 
-      this.api.post<IOrderResponse>('/order', order)
-        .then((response) => this.events.emit('order:success', response))
-        .catch((err) => {
-          console.error('Order submit failed:', err);
-        });
+      try {
+        const result: IOrderResponse = await this.options.api.sendOrder(order);
+        this.options.events.emit('order:success', result);
+      } catch (error) {
+        console.error('Order submit failed:', error);
+      }
     });
-  }
-
-  private validateOrder(order: IOrder): FormErrors {
-    const errors: FormErrors = {};
-
-    if (!order.address?.trim()) errors.address = 'Введите адрес';
-    if (!order.email?.includes('@')) errors.email = 'Некорректный email';
-    if (!order.phone?.match(/^\+?\d{10,15}$/)) errors.phone = 'Некорректный номер';
-    if (!order.payment) errors.payment = 'Выберите способ оплаты';
-
-    return errors;
   }
 }
