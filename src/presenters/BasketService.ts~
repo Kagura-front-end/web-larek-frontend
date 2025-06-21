@@ -8,13 +8,14 @@ export class BasketService {
   constructor(private events: EventEmitter) {}
 
   public init(): void {
+    this.loadFromStorage();
     this.events.on<{ id: UUID }>('basket:add', ({ id }) => this.add(id));
     this.events.on<{ id: UUID }>('basket:remove', ({ id }) => this.remove(id));
     this.events.on<IProductItem[]>('items:changed', (items) => {
       this.catalog = items;
       this.emitBasketChanged();
     });
-    this.events.on<UUID>('basket:get', (id) => {
+    this.events.on<{ id: UUID }>('basket:get', ({ id }) => {
       const inBasket = this.basket.includes(id);
       this.events.emit('basket:status', { id, inBasket });
     });
@@ -23,6 +24,7 @@ export class BasketService {
   private add(id: UUID): void {
     if (!this.basket.includes(id)) {
       this.basket.push(id);
+      this.saveToStorage();
       this.emitBasketChanged();
       this.updateCounter();
     }
@@ -30,8 +32,13 @@ export class BasketService {
 
   private remove(id: UUID): void {
     this.basket = this.basket.filter(itemId => itemId !== id);
+    this.saveToStorage();
     this.emitBasketChanged();
     this.updateCounter();
+  }
+
+  private saveToStorage(): void {
+    localStorage.setItem('basket', JSON.stringify(this.basket));
   }
 
   private emitBasketChanged(): void {

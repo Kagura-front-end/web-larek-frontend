@@ -8,6 +8,7 @@ export class BasketService {
   constructor(private events: EventEmitter) {}
 
   public init(): void {
+    this.loadFromStorage();
     this.events.on<{ id: UUID }>('basket:add', ({ id }) => this.add(id));
     this.events.on<{ id: UUID }>('basket:remove', ({ id }) => this.remove(id));
     this.events.on<IProductItem[]>('items:changed', (items) => {
@@ -20,9 +21,25 @@ export class BasketService {
     });
   }
 
+  private loadFromStorage(): void {
+    const data = localStorage.getItem('basket');
+    if (data) {
+      try {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) {
+          this.basket = parsed;
+          this.updateCounter(); 
+        }
+      } catch (e) {
+        console.warn('Failed to parse basket from storage', e);
+      }
+    }
+  }
+
   private add(id: UUID): void {
     if (!this.basket.includes(id)) {
       this.basket.push(id);
+      this.saveToStorage();
       this.emitBasketChanged();
       this.updateCounter();
     }
@@ -30,8 +47,13 @@ export class BasketService {
 
   private remove(id: UUID): void {
     this.basket = this.basket.filter(itemId => itemId !== id);
+    this.saveToStorage();
     this.emitBasketChanged();
     this.updateCounter();
+  }
+
+  private saveToStorage(): void {
+    localStorage.setItem('basket', JSON.stringify(this.basket));
   }
 
   private emitBasketChanged(): void {
