@@ -1,0 +1,26 @@
+import { IProductItem } from '../types';
+
+export class ProductCard {
+  constructor(private item: IProductItem) {}
+
+  public render(): HTMLElement {
+    const template = document.getElementById('card-catalog') as HTMLTemplateElement;
+    if (!template) {
+      throw new Error('Card template not found');
+    }
+
+    const card = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
+
+    card.querySelector('.card__category')!.textContent = this.item.category;
+    card.querySelector('.card__title')!.textContent = this.item.title;
+    card.querySelector('.card__price')!.textContent = this.item.price ? `${this.item.price} синапсов` : 'Бесценно';
+    const normalizedImage = this.item.image.replace(/^\/+/, '');
+    console.log('API_ORIGIN =', process.env.API_ORIGIN);
+    console.log('image path =', `${process.env.API_ORIGIN}/static/${normalizedImage}`);
+
+    (card.querySelector('.card__image') as HTMLImageElement).src =
+      `${process.env.API_ORIGIN}/static/${normalizedImage}`;
+    card.setAttribute('data-id', this.item.id);
+    return card;
+  }
+}

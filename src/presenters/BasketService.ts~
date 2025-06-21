@@ -9,7 +9,7 @@ interface BasketAddEvent {
   item: IBasketItem;
 }
 
-export class BasketPresenter {
+export class BasketService {
   private basket: IBasketItem[] = [];
 
   constructor(private events: EventEmitter) {}

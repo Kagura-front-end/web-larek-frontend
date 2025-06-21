@@ -1,8 +1,7 @@
-import { CatalogView } from '../views/CatalogView';
+import { EventEmitter } from '../components/base/events';
 import { CatalogController } from './CatalogController';
 import { BasketService } from './BasketService';
 import { OrderHandler } from './OrderHandler';
-import { EventEmitter } from '../components/base/events';
 
 export class AppPresenter {
   private catalog: CatalogController;
@@ -10,9 +9,7 @@ export class AppPresenter {
   private order: OrderHandler;
 
   constructor(private events: EventEmitter) {
-    const catalogView = new CatalogView('.gallery'); // 👈 подключаем view
-
-    this.catalog = new CatalogController(this.events, catalogView);
+    this.catalog = new CatalogController(this.events);
     this.basket = new BasketService(this.events);
     this.order = new OrderHandler(this.events);
   }

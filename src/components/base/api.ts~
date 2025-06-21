@@ -22,14 +22,14 @@ export class Api {
         }
     }
 
-    public get<T>(uri: string): Promise<T> {
+    protected get<T>(uri: string): Promise<T> {
         return fetch(this.baseUrl + uri, {
             ...this.options,
             method: 'GET'
         }).then((response) => this.handleResponse<T>(response));
     }
 
-    public post<T>(
+    protected post<T>(
       uri: string,
       data: object,
       method: 'POST' | 'PUT' | 'DELETE' = 'POST'

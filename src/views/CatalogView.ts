@@ -1,20 +1,22 @@
-import { EventEmitter } from '../components/base/events';
 import { IProductItem } from '../types';
-import { cloneTemplate } from '../utils/utils';
+import { ProductCard } from './ProductCard';
 
 export class CatalogView {
-  constructor(private events: EventEmitter) {}
+  private container: HTMLElement;
 
-  render(items: IProductItem[]) {
-    const container = document.querySelector('.gallery')!;
-    container.innerHTML = '';
+  constructor(containerSelector: string) {
+    const el = document.querySelector(containerSelector);
+    if (!el) {
+      throw new Error(`Element '${containerSelector}' not found`);
+    }
+    this.container = el as HTMLElement;
+  }
 
-    items.forEach(item => {
-      const card = cloneTemplate<HTMLButtonElement>('#card-catalog');
-      card.querySelector('.card__title')!.textContent = item.title;
-      card.querySelector('.card__price')!.textContent = `${item.price} синапсов`;
-      card.addEventListener('click', () => this.events.emit('preview:changed', item));
-      container.appendChild(card);
+  public render(items: IProductItem[]): void {
+    this.container.innerHTML = '';
+    items.forEach((item) => {
+      const card = new ProductCard(item).render();
+      this.container.appendChild(card);
     });
   }
 }

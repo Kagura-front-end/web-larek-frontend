@@ -1,7 +1,9 @@
+// Базовые типы
 export type UUID = string;
 export type Price = number | null;
 export type Category = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
 
+// Товар
 export interface IProductItem {
 	id: UUID;
 	description: string;
@@ -11,17 +13,20 @@ export interface IProductItem {
 	price: Price;
 }
 
+// Ответ API для списка товаров
 export interface IProductListResponse {
 	total: number;
 	items: IProductItem[];
 }
 
+// Данные корзины
 export interface IAppState {
 	catalog: IProductItem[];
 	basket: UUID[];  // список id товаров
 	order: IOrder | null;
 }
 
+// Данные заказа
 export type PaymentMethod = 'online' | 'offline';
 
 export interface IOrderForm {
@@ -36,11 +41,13 @@ export interface IOrder extends IOrderForm {
 	total: number;
 }
 
+// Ответ API при оформлении заказа
 export interface IOrderResponse {
 	id: UUID;
 	total: number;
 }
 
+// События приложения
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
 export interface IAppEvents {
@@ -55,8 +62,10 @@ export interface IAppEvents {
 	'payment:change': PaymentMethod;
 }
 
+// Типы для модальных окон
 export type ModalType = 'preview' | 'basket' | 'order' | 'contacts' | 'success';
 
+// Типы для API
 export type ApiResponse<T> = {
 	success: boolean;
 	data?: T;

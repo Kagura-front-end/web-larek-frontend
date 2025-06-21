@@ -1,0 +1,39 @@
+import { EventEmitter } from '../components/base/events';
+import { Api } from '../components/base/api';
+import { IOrder, IOrderResponse, FormErrors } from '../types';
+
+export class OrderHandler {
+  private api: Api;
+
+  constructor(private events: EventEmitter) {
+    this.api = new Api(process.env.API_ORIGIN + '/api/weblarek');
+  }
+
+  public init(): void {
+    this.events.on<IOrder>('order:submit', (order) => {
+      const errors = this.validateOrder(order);
+
+      if (Object.keys(errors).length > 0) {
+        this.events.emit('formErrors:change', errors);
+        return;
+      }
+
+      this.api.post<IOrderResponse>('/order', order)
+        .then((response) => this.events.emit('order:success', response))
+        .catch((err) => {
+          console.error('Order submit failed:', err);
+        });
+    });
+  }
+
+  private validateOrder(order: IOrder): FormErrors {
+    const errors: FormErrors = {};
+
+    if (!order.address?.trim()) errors.address = 'Введите адрес';
+    if (!order.email?.includes('@')) errors.email = 'Некорректный email';
+    if (!order.phone?.match(/^\+?\d{10,15}$/)) errors.phone = 'Некорректный номер';
+    if (!order.payment) errors.payment = 'Выберите способ оплаты';
+
+    return errors;
+  }
+}

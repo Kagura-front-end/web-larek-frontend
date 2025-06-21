@@ -1,0 +1,21 @@
+import { ApiService } from '../components/base/ApiService';
+import { CatalogController } from './presenters/CatalogController';
+import { EventEmitter } from '../components/base/events';
+
+export class AppPresenter {
+	private catalogController: CatalogController;
+	private api: ApiService;
+
+	constructor(private events: EventEmitter) {
+		this.api = new ApiService('https://larek-api.nomoreparties.co/api/weblarek');
+
+		this.catalogController = new CatalogController({
+			api: this.api,
+			events: this.events
+		});
+	}
+
+	public init() {
+		this.catalogController.loadCatalog();
+	}
+}
