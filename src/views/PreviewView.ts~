@@ -5,6 +5,7 @@ export class PreviewView implements IView<IProductItem> {
   private template: HTMLTemplateElement;
   private container: HTMLElement;
   private modal: HTMLElement;
+  private currentId: string | null = null;
 
   constructor(templateSelector: string, containerSelector: string) {
     const templateEl = document.querySelector(templateSelector);
@@ -27,19 +28,26 @@ export class PreviewView implements IView<IProductItem> {
   }
 
   public render(data: IProductItem): void {
+    this.currentId = data.id;
+
     this.container.innerHTML = '';
     const card = this.template.content.cloneNode(true) as HTMLElement;
 
     (card.querySelector('.card__title') as HTMLElement).textContent = data.title;
     (card.querySelector('.card__text') as HTMLElement).textContent = data.description;
     (card.querySelector('.card__category') as HTMLElement).textContent = data.category;
-    (card.querySelector('.card__price') as HTMLElement).textContent = data.price ? `${data.price} синапсов` : 'Бесценно';
+    (card.querySelector('.card__price') as HTMLElement).textContent = data.price
+      ? `${data.price} синапсов`
+      : 'Бесценно';
 
     const image = card.querySelector('.card__image') as HTMLImageElement;
     image.src = new URL(`/static/${data.image.replace(/^\/+/, '')}`, process.env.API_ORIGIN).toString();
     image.alt = data.title;
 
-    (card.querySelector('.card__button') as HTMLButtonElement).setAttribute('data-id', data.id);
+    const button = card.querySelector('.button') as HTMLButtonElement;
+    button.classList.add('card__button');
+    button.dataset.id = data.id;
+    button.textContent = 'В корзину';
 
     this.container.appendChild(card);
     this.modal.classList.add('modal_active');
@@ -47,5 +55,38 @@ export class PreviewView implements IView<IProductItem> {
 
   public close(): void {
     this.modal.classList.remove('modal_active');
+  }
+
+  public bindAddToCart(handler: (id: string) => void): void {
+    this.container.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('card__button')) {
+        const id = target.dataset.id;
+        if (id) handler(id);
+      }
+    });
+  }
+
+  public updateButtonState(id: string, inBasket: boolean): void {
+    const button = this.container.querySelector<HTMLButtonElement>('.card__button');
+
+    console.log('[updateButtonState]', {
+      currentId: this.currentId,
+      id,
+      button,
+      inBasket,
+    });
+
+    if (!button || button.dataset.id !== id) return;
+
+    // Отложим обновление на следующий тик
+    setTimeout(() => {
+      button.textContent = inBasket ? 'В корзину' : 'Купить';
+      console.log('✅ updated button text:', button.textContent);
+    }, 0);
+  }
+
+  public getCurrentId(): string | null {
+    return this.currentId;
   }
 }

@@ -20,7 +20,6 @@ export class PreviewPresenter {
     });
 
     this.view.bindAddToCart((id: UUID) => {
-      this.events.emit('basket:add', { id });
       this.view.updateButtonState(id, true);
     });
 

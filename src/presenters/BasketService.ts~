@@ -8,11 +8,15 @@ export class BasketService {
   constructor(private events: EventEmitter) {}
 
   public init(): void {
-    this.events.on<string>('basket:add', (id) => this.add(id));
-    this.events.on<string>('basket:remove', (id) => this.remove(id));
+    this.events.on<{ id: UUID }>('basket:add', ({ id }) => this.add(id));
+    this.events.on<{ id: UUID }>('basket:remove', ({ id }) => this.remove(id));
     this.events.on<IProductItem[]>('items:changed', (items) => {
       this.catalog = items;
       this.emitBasketChanged();
+    });
+    this.events.on<UUID>('basket:get', (id) => {
+      const inBasket = this.basket.includes(id);
+      this.events.emit('basket:status', { id, inBasket });
     });
   }
 

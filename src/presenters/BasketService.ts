@@ -14,6 +14,10 @@ export class BasketService {
       this.catalog = items;
       this.emitBasketChanged();
     });
+    this.events.on<{ id: UUID }>('basket:get', ({ id }) => {
+      const inBasket = this.basket.includes(id);
+      this.events.emit('basket:status', { id, inBasket });
+    });
   }
 
   private add(id: UUID): void {
