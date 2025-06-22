@@ -57,12 +57,23 @@ export class PreviewView implements IView<IProductItem> {
     this.modal.classList.remove('modal_active');
   }
 
-  public bindAddToCart(handler: (id: string) => void): void {
+  public bindAddToCart(
+    handler: (id: string) => void,
+    openBasketCallback: () => void
+  ): void {
     this.container.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
+
       if (target.classList.contains('card__button')) {
         const id = target.dataset.id;
-        if (id) handler(id);
+
+        if (id) {
+          if (target.textContent === 'Купить') {
+            openBasketCallback();
+          } else {
+            handler(id);
+          }
+        }
       }
     });
   }
@@ -81,7 +92,6 @@ export class PreviewView implements IView<IProductItem> {
 
     setTimeout(() => {
       button.textContent = inBasket ? 'Купить' : 'В корзину';
-      console.log('✅ updated button text:', button.textContent);
     }, 0);
   }
 

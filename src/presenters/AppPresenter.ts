@@ -6,6 +6,8 @@ import { EventEmitter } from '../components/base/events';
 import { ApiService } from '../components/base/ApiService';
 import { PreviewView } from '../views/PreviewView';
 import { PreviewPresenter } from './PreviewPresenter';
+import { BasketView } from '../views/BasketView';
+import { Modal } from '../components/common/Modal';
 
 export class AppPresenter {
   private catalog: CatalogController;
@@ -14,6 +16,9 @@ export class AppPresenter {
   private preview: PreviewPresenter;
   private api: ApiService;
 
+  private basketView: BasketView;
+  private modal: Modal;
+
   constructor(private events: EventEmitter) {
     const catalogView = new CatalogView('.gallery', this.events);
     const previewView = new PreviewView('#card-preview', '.modal__content');
@@ -21,6 +26,7 @@ export class AppPresenter {
     this.api = new ApiService(process.env.API_ORIGIN + '/api/weblarek');
 
     this.preview = new PreviewPresenter(this.events, previewView);
+    this.basketView = new BasketView();
 
     this.catalog = new CatalogController({
       api: this.api,
@@ -34,6 +40,8 @@ export class AppPresenter {
       api: this.api,
       events: this.events,
     });
+
+    this.modal = new Modal();
   }
 
   public init(): void {
@@ -41,5 +49,25 @@ export class AppPresenter {
     this.basket.init();
     this.order.init();
     this.preview.init();
+
+    document.querySelector('.header__basket')?.addEventListener('click', () => {
+      this.events.emit('basket:open');
+    });
+
+    this.events.on('basket:open', () => {
+      const items = this.basket.getItems();
+      const modalContent = this.basketView.render(items);
+
+      this.basketView.setOnRemove((id) => {
+        this.basket.remove(id);
+        this.events.emit('basket:open');
+      });
+
+      this.basketView.setOnSubmit(() => {
+        this.events.emit('order:open');
+      });
+
+      this.modal.open(modalContent);
+    });
   }
 }

@@ -23,9 +23,10 @@ export class CatalogController {
   public init(): void {
     this.api.getProductList()
       .then((response) => {
+        console.log('📦 Каталог получен:', response);
         this.view.render(response.items);
         this.events.emit('items:changed', response.items);
       })
-      .catch((err) => console.error('Ошибка загрузки каталога:', err));
+      .catch((err) => console.error('❌ Ошибка загрузки каталога:', err));
   }
 }

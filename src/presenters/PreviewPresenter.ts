@@ -19,10 +19,15 @@ export class PreviewPresenter {
       this.events.emit('basket:get', { id: item.id });
     });
 
-    this.view.bindAddToCart((id: UUID) => {
-      this.events.emit('basket:add', { id });
-      this.view.updateButtonState(id, true);
-    });
+    this.view.bindAddToCart(
+      (id) => {
+        this.events.emit('basket:add', { id });
+        this.view.updateButtonState(id, true);
+      },
+      () => {
+        this.events.emit('basket:open');
+      }
+    );
 
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
