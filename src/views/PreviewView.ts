@@ -79,7 +79,6 @@ export class PreviewView implements IView<IProductItem> {
 
     if (!button || button.dataset.id !== id) return;
 
-    // Отложим обновление на следующий тик
     setTimeout(() => {
       button.textContent = inBasket ? 'Купить' : 'В корзину';
       console.log('✅ updated button text:', button.textContent);

@@ -20,11 +20,13 @@ export class CatalogView implements IView<IProductItem[]> {
       const card = new ProductCard(item).render();
 
       card.addEventListener('click', () => {
-        console.log('Card clicked:', item.title); // ✅ Проверка
+        console.log('Card clicked:', item.title);
         this.events.emit('preview:changed', item);
       });
 
       this.container.appendChild(card);
     });
   }
+
 }
+

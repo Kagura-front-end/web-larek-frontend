@@ -1,0 +1,6 @@
+export const categoryMapping: Record<string, string> = {
+  soft: 'soft',
+  hard: 'hard',
+  medium: 'medium',
+  rare: 'rare',
+};
