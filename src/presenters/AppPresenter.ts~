@@ -56,10 +56,6 @@ export class AppPresenter {
     this.basket.init();
     this.order.init();
     this.preview.init();
-    this.events.on('order:open', () => {
-      const modalContent = this.orderView.render();
-      this.modal.open(modalContent);
-    });
 
     document.querySelector('.header__basket')?.addEventListener('click', () => {
       this.events.emit('basket:open');

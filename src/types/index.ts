@@ -41,6 +41,8 @@ export interface IOrderResponse {
 	total: number;
 }
 
+export type SelectorElement<T extends Element = HTMLElement> = string | T;
+
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
 export interface IAppEvents {
