@@ -15,23 +15,19 @@ export class ProductCard {
 
     const card = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
 
-    // 🔍 Находим элементы
     const categoryEl = card.querySelector('.card__category') as HTMLElement;
     const titleEl = card.querySelector('.card__title') as HTMLElement;
     const priceEl = card.querySelector('.card__price') as HTMLElement;
     const imageEl = card.querySelector('.card__image') as HTMLImageElement;
 
-    // 🏷️ Устанавливаем текст и модификатор категории
     categoryEl.textContent = this.item.category;
     this.updateCategoryClass(categoryEl, this.item.category);
 
-    // 📝 Остальные поля
     titleEl.textContent = this.item.title;
     priceEl.textContent = this.item.price
       ? `${this.item.price} синапсов`
       : 'Бесценно';
 
-    // 🖼️ Картинка
     const imageName = this.item.image.replace(/^\/+/, '');
     const imageUrl = new URL(`/static/${imageName}`, process.env.API_ORIGIN);
     if (imageEl) {

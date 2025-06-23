@@ -1,39 +1,84 @@
 import { EventEmitter } from '../components/base/events';
-import { Api } from '../components/base/api';
-import { IOrder, IOrderResponse, FormErrors } from '../types';
+import { ApiService } from '../components/base/ApiService';
+import { IOrderForm, IOrderResponse, IOrder } from '../types';
+import { OrderValidator } from '../validators/OrderValidator';
+import { OrderView } from '../views/OrderView';
+import { Modal } from '../components/common/Modal';
+import { OrderService } from '../models/OrderService';
+
+export interface IOrderHandlerConstructor {
+  api: ApiService;
+  events: EventEmitter;
+  orderService: OrderService;
+  modal: Modal;
+}
 
 export class OrderHandler {
-  private api: Api;
+  private view: OrderView;
 
-  constructor(private events: EventEmitter) {
-    this.api = new Api(process.env.API_ORIGIN + '/api/weblarek');
+  constructor(
+    private options: IOrderHandlerConstructor
+  ) {
+    this.view = new OrderView(document.createElement('div'));
   }
 
   public init(): void {
-    this.events.on<IOrder>('order:submit', (order) => {
-      const errors = this.validateOrder(order);
+    const { events, api, orderService, modal } = this.options;
 
+    events.on('order:open', () => {
+      const content = this.view.renderOrder();
+      modal.open(content);
+
+      this.view.setSubmitEnabled(false);
+
+      this.view.setOnAddressChange((value) => {
+        this.view.setSubmitEnabled(value.length > 0);
+      });
+
+      this.view.setOnSubmit(() => {
+        // Переход ко второму шагу
+        const content = this.view.renderContacts();
+        modal.open(content);
+
+        this.view.setSubmitEnabled(false);
+
+        const validateContacts = () => {
+          const email = this.view.getEmail();
+          const phone = this.view.getPhone();
+          this.view.setSubmitEnabled(email.length > 0 && phone.length > 0);
+        };
+
+        this.view.emailInput?.addEventListener('input', validateContacts);
+        this.view.phoneInput?.addEventListener('input', validateContacts);
+
+        this.view.setOnSubmit(async () => {
+          const form: IOrderForm = {
+            payment: this.view.getPaymentMethod(),
+            address: this.view.getAddress(),
+            email: this.view.getEmail(),
+            phone: this.view.getPhone(),
+          };
+
+          events.emit('order:formFilled', form);
+        });
+      });
+    });
+
+    events.on<'order:formFilled'>('order:formFilled', async (form) => {
+      const fullOrder: IOrder = orderService.getFullOrder();
+
+      const errors = OrderValidator.validate(fullOrder);
       if (Object.keys(errors).length > 0) {
-        this.events.emit('formErrors:change', errors);
+        events.emit('formErrors:change', errors);
         return;
       }
 
-      this.api.post<IOrderResponse>('/order', order)
-        .then((response) => this.events.emit('order:success', response))
-        .catch((err) => {
-          console.error('Order submit failed:', err);
-        });
+      try {
+        const result: IOrderResponse = await api.sendOrder(fullOrder);
+        events.emit('order:success', result);
+      } catch (error) {
+        console.error('Order submit failed:', error);
+      }
     });
-  }
-
-  private validateOrder(order: IOrder): FormErrors {
-    const errors: FormErrors = {};
-
-    if (!order.address?.trim()) errors.address = 'Введите адрес';
-    if (!order.email?.includes('@')) errors.email = 'Некорректный email';
-    if (!order.phone?.match(/^\+?\d{10,15}$/)) errors.phone = 'Некорректный номер';
-    if (!order.payment) errors.payment = 'Выберите способ оплаты';
-
-    return errors;
   }
 }

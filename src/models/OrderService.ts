@@ -1,0 +1,49 @@
+import { IOrder, PaymentMethod, UUID } from '../types';
+import { EventEmitter } from '../components/base/events';
+
+export class OrderService {
+  private payment: PaymentMethod | null = null;
+
+  constructor(private events: EventEmitter) {
+    this.loadFromStorage();
+  }
+
+  public getFullOrder(): IOrder {
+    const items: UUID[] = JSON.parse(localStorage.getItem('basket') ?? '[]');
+    const total: number = Number(localStorage.getItem('total') ?? '0');
+    const payment = this.payment ?? 'card';
+    const address = localStorage.getItem('address') ?? '';
+    const email = localStorage.getItem('email') ?? '';
+    const phone = localStorage.getItem('phone') ?? '';
+
+    return {
+      items,
+      total,
+      payment,
+      address,
+      email,
+      phone,
+    };
+  }
+
+  public setPayment(method: PaymentMethod) {
+    this.payment = method;
+    this.saveToStorage();
+    this.events.emit('payment:change', method);
+  }
+
+  public getPayment(): PaymentMethod | null {
+    return this.payment;
+  }
+
+  private saveToStorage() {
+    localStorage.setItem('payment', String(this.payment ?? ''));
+  }
+
+  private loadFromStorage() {
+    const saved = localStorage.getItem('payment');
+    if (saved === 'card' || saved === 'cash') {
+      this.payment = saved;
+    }
+  }
+}

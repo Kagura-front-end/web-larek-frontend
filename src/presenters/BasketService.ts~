@@ -10,21 +10,21 @@ export class BasketService {
   private basket: UUID[] = [];
   private catalog: IProductItem[] = [];
 
-  constructor(private events: EventEmitter) {
-  }
+  constructor(private events: EventEmitter) {}
 
   public init(): void {
     this.loadFromStorage();
 
-    this.events.on<{ id: UUID }>('basket:add', ({ id }) => this.add(id));
-    this.events.on<{ id: UUID }>('basket:remove', ({ id }) => this.remove(id));
-    this.events.on<IProductItem[]>('items:changed', (items) => {
-      this.catalog = items;
-      this.emitBasketChanged();
+    this.events.on<'basket:add'>('basket:add', ({ id }) => {
+      this.add(id);
     });
-    this.events.on<{ id: UUID }>('basket:get', ({ id }) => {
-      const inBasket = this.basket.includes(id);
-      this.events.emit('basket:status', { id, inBasket });
+
+    this.events.on<'basket:remove'>('basket:remove', ({ id }) => {
+      this.remove(id);
+    });
+
+    this.events.on<'basket:status'>('basket:status', () => {
+      this.emitBasketChanged();
     });
   }
 
@@ -37,6 +37,8 @@ export class BasketService {
           this.basket = parsed;
           this.updateCounter();
         }
+      } catch (e) {
+        console.warn('Failed to parse basket from storage', e);
       }
     }
   }
@@ -80,5 +82,9 @@ export class BasketService {
 
   public getItems(): IProductItem[] {
     return this.catalog.filter(product => this.basket.includes(product.id));
+  }
+
+  public setCatalog(items: IProductItem[]): void {
+    this.catalog = items;
   }
 }

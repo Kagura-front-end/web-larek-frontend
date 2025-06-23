@@ -1,7 +1,7 @@
-import { EventEmitter } from '../components/base/events';
 import { ApiService } from '../components/base/ApiService';
+import { EventEmitter } from '../components/base/events';
 import { IProductItem } from '../types';
-import type { CatalogView } from '../views/CatalogView';
+import { CatalogView } from '../views/CatalogView';
 
 export interface ICatalogControllerConstructor {
   api: ApiService;
@@ -27,5 +27,13 @@ export class CatalogController {
         this.view.render(response.items);
         this.events.emit('items:changed', response.items);
       })
+      .catch((error) => {
+        console.error('❌ Ошибка получения каталога:', error);
+        this.events.emit('catalog:error', 'Не удалось загрузить каталог. Попробуйте позже.');
+      });
+  }
+
+  public update(items: IProductItem[]): void {
+    this.view.render(items);
   }
 }

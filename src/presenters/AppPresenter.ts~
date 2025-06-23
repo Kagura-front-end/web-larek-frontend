@@ -8,8 +8,8 @@ import { PreviewView } from '../views/PreviewView';
 import { PreviewPresenter } from './PreviewPresenter';
 import { BasketView } from '../views/BasketView';
 import { Modal } from '../components/common/Modal';
-import { OrderView } from '../views/OrderView';
-
+import { OrderService } from '../models/OrderService';
+import { IProductItem } from '../types';
 
 export class AppPresenter {
   private catalog: CatalogController;
@@ -17,23 +17,20 @@ export class AppPresenter {
   private order: OrderHandler;
   private preview: PreviewPresenter;
   private api: ApiService;
-  private orderView: OrderView;
-
-
   private basketView: BasketView;
   private modal: Modal;
 
   constructor(private events: EventEmitter) {
     const catalogView = new CatalogView('.gallery', this.events);
     const previewView = new PreviewView('#card-preview', '.modal__content');
-    const modalContentEl = document.querySelector('.modal__content') as HTMLElement;
-    this.orderView = new OrderView(modalContentEl);
 
     this.api = new ApiService(process.env.API_ORIGIN + '/api/weblarek');
+    this.modal = new Modal();
+
+    const orderService = new OrderService(this.events);
 
     this.preview = new PreviewPresenter(this.events, previewView);
     this.basketView = new BasketView();
-
 
     this.catalog = new CatalogController({
       api: this.api,
@@ -46,9 +43,9 @@ export class AppPresenter {
     this.order = new OrderHandler({
       api: this.api,
       events: this.events,
+      orderService: orderService,
+      modal: this.modal,
     });
-
-    this.modal = new Modal();
   }
 
   public init(): void {
@@ -58,20 +55,24 @@ export class AppPresenter {
     this.preview.init();
 
     document.querySelector('.header__basket')?.addEventListener('click', () => {
-      this.events.emit('basket:open');
+      this.events.emit('basket:open', undefined);
     });
 
-    this.events.on('basket:open', () => {
+    this.events.on<'items:changed'>('items:changed', (items) => {
+      this.catalog.update(items); // убедись, что метод update есть в CatalogController
+    });
+
+    this.events.on<'basket:open'>('basket:open', () => {
       const items = this.basket.getItems();
       const modalContent = this.basketView.render(items);
 
       this.basketView.setOnRemove((id) => {
         this.basket.remove(id);
-        this.events.emit('basket:open');
+        this.events.emit('basket:open', undefined);
       });
 
       this.basketView.setOnSubmit(() => {
-        this.events.emit('order:open');
+        this.events.emit('order:open', undefined);
       });
 
       this.modal.open(modalContent);

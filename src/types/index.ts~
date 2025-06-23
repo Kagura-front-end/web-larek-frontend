@@ -60,7 +60,6 @@ export interface IAppEvents {
 	'basket:open': void;
 	'order:open': void;
 	'order:formFilled': IOrderForm;
-	'catalog:error': string;
 }
 
 export type ModalType = 'preview' | 'basket' | 'order' | 'contacts' | 'success';

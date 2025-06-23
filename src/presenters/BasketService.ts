@@ -10,21 +10,23 @@ export class BasketService {
   private basket: UUID[] = [];
   private catalog: IProductItem[] = [];
 
-  constructor(private events: EventEmitter) {
-  }
+  constructor(private events: EventEmitter) {}
 
   public init(): void {
     this.loadFromStorage();
 
-    this.events.on<{ id: UUID }>('basket:add', ({ id }) => this.add(id));
-    this.events.on<{ id: UUID }>('basket:remove', ({ id }) => this.remove(id));
-    this.events.on<IProductItem[]>('items:changed', (items) => {
-      this.catalog = items;
-      this.emitBasketChanged();
+    this.events.on<'basket:add'>('basket:add', ({ id }) => {
+      this.basket.push(id);
+      this.update();
     });
-    this.events.on<{ id: UUID }>('basket:get', ({ id }) => {
-      const inBasket = this.basket.includes(id);
-      this.events.emit('basket:status', { id, inBasket });
+
+    this.events.on<'basket:remove'>('basket:remove', ({ id }) => {
+      this.basket = this.basket.filter(itemId => itemId !== id);
+      this.update();
+    });
+
+    this.events.on<'basket:status'>('basket:status', () => {
+      this.update();
     });
   }
 
@@ -64,23 +66,22 @@ export class BasketService {
     this.events.emit('basket:changed', payload);
   }
 
-  private add(id: UUID): void {
-    if (!this.basket.includes(id)) {
-      this.basket.push(id);
-      this.saveToStorage();
-      this.emitBasketChanged();
-      this.updateCounter();
-    }
-  }
-
-  public remove(id: UUID): void {
-    this.basket = this.basket.filter(itemId => itemId !== id);
+  private update(): void {
     this.saveToStorage();
     this.emitBasketChanged();
     this.updateCounter();
   }
 
+  public setCatalog(catalog: IProductItem[]): void {
+    this.catalog = catalog;
+  }
+
   public getItems(): IProductItem[] {
     return this.catalog.filter(product => this.basket.includes(product.id));
+  }
+
+  public remove(id: UUID): void {
+    this.basket = this.basket.filter(itemId => itemId !== id);
+    this.update();
   }
 }

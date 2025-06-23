@@ -27,6 +27,7 @@ export class PreviewView implements IView<IProductItem> {
     this.modal = modalEl;
   }
 
+
   public render(data: IProductItem): void {
     this.currentId = data.id;
 
@@ -98,4 +99,10 @@ export class PreviewView implements IView<IProductItem> {
   public getCurrentId(): string | null {
     return this.currentId;
   }
+
+  public getCurrentProductId(): string | null {
+    const card = this.container.querySelector<HTMLElement>('.card');
+    return card?.dataset.id ?? null;
+  }
 }
+
