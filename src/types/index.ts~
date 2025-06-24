@@ -22,7 +22,7 @@ export interface IAppState {
 	order: IOrder | null;
 }
 
-export type PaymentMethod = 'card' | 'cash';
+export type PaymentMethod = 'cash' | 'offline';
 
 export interface IOrderForm {
 	payment: PaymentMethod;
