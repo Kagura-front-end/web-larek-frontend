@@ -2,16 +2,20 @@ export class Modal {
   private container: HTMLElement;
   private content: HTMLElement;
   private listener: (event: MouseEvent) => void;
-
   public onClose?: () => void;
 
-  constructor() {
-    this.container = document.querySelector('.modal') as HTMLElement;
+  constructor(selector: string = '.modal') {
+    this.container = document.querySelector(selector) as HTMLElement;
+    if (!this.container) throw new Error(`Modal element '${selector}' not found`);
+
     this.content = this.container.querySelector('.modal__content') as HTMLElement;
+    if (!this.content) throw new Error(`.modal__content not found inside '${selector}'`);
 
     this.listener = (event: MouseEvent) => {
-      if ((event.target as HTMLElement).closest('.modal__content')) return;
-      this.close();
+      const target = event.target as HTMLElement;
+      if (!target.closest('.modal__content') || target.closest('.modal__close')) {
+        this.close();
+      }
     };
   }
 
@@ -28,7 +32,6 @@ export class Modal {
     this.container.classList.remove('modal_active');
     document.body.classList.remove('body_fixed');
     this.container.removeEventListener('click', this.listener);
-
     this.onClose?.();
   }
 }

@@ -7,15 +7,32 @@ export class Modal {
 
   constructor() {
     this.container = document.querySelector('.modal') as HTMLElement;
+    if (!this.container) {
+      throw new Error('Modal container not found');
+    }
+
     this.content = this.container.querySelector('.modal__content') as HTMLElement;
+    if (!this.content) {
+      throw new Error('Modal content not found');
+    }
 
     this.listener = (event: MouseEvent) => {
-      if ((event.target as HTMLElement).closest('.modal__content')) return;
-      this.close();
+      const target = event.target as HTMLElement;
+
+      if (!target.closest('.modal__content')) {
+        this.close();
+        return;
+      }
+
+      if (target.closest('.modal__close')) {
+        this.close();
+        return;
+      }
     };
   }
 
   public open(content: HTMLElement): void {
+    console.log('🪟 Открываем модалку с контентом:', content);
     this.content.innerHTML = '';
     this.content.append(content);
     this.container.classList.add('modal_active');

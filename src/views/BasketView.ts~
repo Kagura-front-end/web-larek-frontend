@@ -71,13 +71,6 @@ export class BasketView {
 	}
 
 	public setOnSubmit(callback: () => void) {
-		// Заменим кнопку на её клон, чтобы удалить все предыдущие обработчики
-		const newButton = this.submitButton.cloneNode(true) as HTMLButtonElement;
-
-		// Заменим старую кнопку в DOM
-		this.submitButton.replaceWith(newButton);
-		this.submitButton = newButton;
-
 		this.submitButton.addEventListener('click', () => {
 			if (!this.submitButton.disabled) {
 				callback();
