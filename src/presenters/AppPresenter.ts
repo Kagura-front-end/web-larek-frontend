@@ -9,7 +9,7 @@ import { PreviewPresenter } from './PreviewPresenter';
 import { BasketView } from '../views/BasketView';
 import { Modal } from '../components/common/Modal';
 import { OrderView } from '../views/OrderView';
-
+import { OrderService } from '../models/OrderService';
 
 export class AppPresenter {
   private catalog: CatalogController;
@@ -18,7 +18,7 @@ export class AppPresenter {
   private preview: PreviewPresenter;
   private api: ApiService;
   private orderView: OrderView;
-
+  private orderService = new OrderService();
 
   private basketView: BasketView;
   private modal: Modal;
@@ -33,7 +33,6 @@ export class AppPresenter {
 
     this.preview = new PreviewPresenter(this.events, previewView);
     this.basketView = new BasketView();
-
 
     this.catalog = new CatalogController({
       api: this.api,
@@ -56,15 +55,67 @@ export class AppPresenter {
     this.basket.init();
     this.order.init();
     this.preview.init();
+
+    // Открытие формы заказа
     this.events.on('order:open', () => {
-      const modalContent = this.orderView.render();
-      this.modal.open(modalContent);
+      this.modal.open(this.orderView.render());
+
+      // Ждём, пока .modal__content появится в DOM
+      setTimeout(() => {
+        const modalElement = document.querySelector('.modal__content');
+        if (!modalElement) return;
+
+        const buttons = modalElement.querySelectorAll<HTMLButtonElement>('.order__buttons .button');
+        const addressInput = modalElement.querySelector<HTMLInputElement>('input[name="address"]');
+        const nextButton = modalElement.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+        const updateState = () => {
+          const hasPayment = !!this.orderService.getPayment();
+          const address = addressInput?.value.trim();
+
+          if (address) this.orderService.setAddress(address);
+          const hasAddress = !!this.orderService.getAddress();
+
+          console.log('[updateState] hasPayment:', hasPayment, 'hasAddress:', hasAddress);
+
+          if (nextButton) {
+            nextButton.disabled = !(hasPayment && hasAddress);
+            console.log('[button] кнопка Далее активна:', !nextButton.disabled);
+          }
+        };
+
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('button_alt-active'));
+            btn.classList.add('button_alt-active');
+
+            this.orderService.setPayment(btn.name);
+            console.log('[click] выбран способ оплаты:', btn.name);
+            console.log('[state] сохранён способ в orderService:', this.orderService.getPayment());
+
+            updateState();
+          });
+        });
+
+        addressInput?.addEventListener('input', updateState);
+
+        nextButton?.addEventListener('click', (e) => {
+          e.preventDefault();
+          const contactsTemplate = document.getElementById('contacts') as HTMLTemplateElement;
+          if (contactsTemplate) {
+            const contactsContent = contactsTemplate.content.cloneNode(true) as HTMLElement;
+            this.modal.open(contactsContent);
+          }
+        });
+      }, 0);
     });
 
+    // Кнопка корзины
     document.querySelector('.header__basket')?.addEventListener('click', () => {
       this.events.emit('basket:open');
     });
 
+    // Открытие корзины
     this.events.on('basket:open', () => {
       const items = this.basket.getItems();
       const modalContent = this.basketView.render(items);
