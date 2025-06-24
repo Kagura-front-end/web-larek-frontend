@@ -23,7 +23,52 @@
 .basket__item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: flex-start;
+  gap: 2rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #060C14;
 }
 
+.basket__item-index {
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: black;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.basket__item-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  width: 100%;
+}
+
+.basket__item-title {
+  font-family: 'YS Text', sans-serif;
+  font-weight: 500;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.basket__item-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  min-width: 14rem;
+}
+
+.basket__item-price {
+  white-space: nowrap;
+  text-align: right;
+}

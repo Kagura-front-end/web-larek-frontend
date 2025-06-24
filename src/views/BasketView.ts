@@ -45,6 +45,8 @@ export class BasketView {
 			deleteButton.dataset.id = item.id;
 			deleteButton.setAttribute('aria-label', 'Удалить товар');
 
+			titleEl.classList.add('basket__item-title');
+
 			li.appendChild(titleEl);
 			li.appendChild(priceEl);
 			li.appendChild(deleteButton);
