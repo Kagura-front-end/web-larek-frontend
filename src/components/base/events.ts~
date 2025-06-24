@@ -10,22 +10,20 @@ export interface IEvents {
 }
 
 export class EventEmitter implements IEvents {
-    private listeners: {
-        [K in EventName]?: Set<EventCallback<IAppEvents[K]>>
-    } = {};
+    private listeners = {} as Partial<Record<EventName, Set<EventCallback<any>>>>;
 
     public on<K extends EventName>(event: K, callback: EventCallback<IAppEvents[K]>): void {
         if (!this.listeners[event]) {
             this.listeners[event] = new Set();
         }
-        this.listeners[event]!.add(callback);
+        (this.listeners[event] as Set<EventCallback<IAppEvents[K]>>).add(callback);
     }
 
     public emit<K extends EventName>(event: K, payload: IAppEvents[K]): void {
-        this.listeners[event]?.forEach((callback) => callback(payload));
+        (this.listeners[event] as Set<EventCallback<IAppEvents[K]>>)?.forEach((cb) => cb(payload));
     }
 
     public off<K extends EventName>(event: K, callback: EventCallback<IAppEvents[K]>): void {
-        this.listeners[event]?.delete(callback);
+        (this.listeners[event] as Set<EventCallback<IAppEvents[K]>>)?.delete(callback);
     }
 }

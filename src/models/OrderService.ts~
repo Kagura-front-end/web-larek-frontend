@@ -29,7 +29,7 @@ export class OrderService {
   public setPayment(method: PaymentMethod) {
     this.payment = method;
     this.saveToStorage();
-    this.events.emit('order:payment:changed', method as PaymentMethod);
+    this.events.emit('payment:change', method);
   }
 
   public getPayment(): PaymentMethod | null {
@@ -46,4 +46,14 @@ export class OrderService {
       this.payment = saved;
     }
   }
+}
+
+private address: string = '';
+
+public setAddress(address: string): void {
+  this.address = address;
+}
+
+public isFormStep1Valid(): boolean {
+  return this.address.trim().length > 0;
 }

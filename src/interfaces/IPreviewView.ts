@@ -4,10 +4,10 @@ import { IProductItem, UUID } from '../types';
 export interface IPreviewView extends IView<IProductItem> {
   close(): void;
 
-  bindAddToCart(
-    handler: (id: UUID) => void,
-    openBasketCallback: () => void
-  ): void;
+  bindAddToCart(options: {
+    onAdd: (id: string) => void;
+    onBuy: () => void;
+  }): void;
 
   updateButtonState(id: UUID, inBasket: boolean): void;
   getCurrentId(): UUID | null;

@@ -18,26 +18,29 @@ export class PreviewPresenter {
 
     // Слушаем изменение корзины — обновляем кнопку
     this.events.on<'basket:changed'>('basket:changed', (data) => {
-      if (!data?.items) return;
+      console.log('[basket:changed]', data);
 
       const id = this.view.getCurrentId();
-      if (!id) return;
+      console.log('[basket:changed] currentId:', id);
+
+      if (!data?.items || !id) return;
 
       const inBasket = data.items.some((item) => item.id === id);
       this.view.updateButtonState(id, inBasket);
     });
 
-    // Добавление в корзину из модалки
-    this.view.bindAddToCart(
-      (id: string) => {
+    this.view.bindAddToCart({
+      onAdd: (id: string) => {
+        console.log(`[PreviewPresenter] emitting basket:add for ${id}`);
         this.events.emit('basket:add', { id });
       },
-      () => {
-        this.events.emit('basket:open', undefined); // <-- вот это важно!
+      onBuy: () => {
+        console.log('[PreviewPresenter] emitting order:open');
+        this.view.close();
+        this.events.emit('order:open');
       }
-    );
+    });
 
-    // Получаем товары и запоминаем для поиска по id
     this.events.on<'items:changed'>('items:changed', (items) => {
       this.catalog = items;
     });

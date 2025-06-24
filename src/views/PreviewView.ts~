@@ -68,6 +68,7 @@ export class PreviewView implements IView<IProductItem> {
 
       if (target.classList.contains('card__button')) {
         const id = target.dataset.id;
+
         if (!id) return;
 
         if (target.textContent === 'Купить') {

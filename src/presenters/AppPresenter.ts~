@@ -55,27 +55,64 @@ export class AppPresenter {
     this.preview.init();
 
     document.querySelector('.header__basket')?.addEventListener('click', () => {
-      this.events.emit('basket:open', undefined);
+      this.events.emit('basket:open');
     });
 
     this.events.on<'items:changed'>('items:changed', (items) => {
-      this.catalog.update(items); // убедись, что метод update есть в CatalogController
+      this.catalog.update(items);
+      this.basket.setCatalog(items);
     });
 
     this.events.on<'basket:open'>('basket:open', () => {
+      localStorage.setItem('modal:open', 'basket');
+
       const items = this.basket.getItems();
       const modalContent = this.basketView.render(items);
 
       this.basketView.setOnRemove((id) => {
         this.basket.remove(id);
-        this.events.emit('basket:open', undefined);
+        this.events.emit('basket:open');
       });
 
       this.basketView.setOnSubmit(() => {
-        this.events.emit('order:open', undefined);
+        console.log('🛒 Нажата кнопка "Оформить"');
+        this.events.emit('order:open');
       });
 
       this.modal.open(modalContent);
     });
+
+    this.events.on<'order:open'>('order:open', () => {
+      localStorage.setItem('modal:open', 'order');
+      const content = this.order.renderFormStep1();
+      this.modal.open(content);
+    });
+
+
+
+    this.events.on<'order:open'>('order:open', () => {
+      localStorage.setItem('modal:open', 'order');
+      const orderContent = this.order.renderFormStep1();
+      this.modal.open(orderContent);
+    });
+
+    this.events.on<'catalog:error'>('catalog:error', (message) => {
+      console.warn('⚠️ Ошибка загрузки каталога:', message);
+      const container = document.querySelector('.gallery');
+      if (container) {
+        container.innerHTML = `<p class="error">⚠️ ${message}</p>`;
+      }
+    });
+
+    this.modal.onClose = () => {
+      localStorage.removeItem('modal:open');
+    };
+
+    const lastModal = localStorage.getItem('modal:open');
+    if (lastModal === 'basket') {
+      this.events.emit('basket:open');
+    } else if (lastModal === 'order') {
+      this.events.emit('order:open');
+    }
   }
 }

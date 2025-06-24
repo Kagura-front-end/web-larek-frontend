@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
     "noImplicitAny": true,
     "module": "es6",
     "target": "es2017",
     "allowJs": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "include": ["src/**/*.ts", "src/types/*.d.ts"]
 }

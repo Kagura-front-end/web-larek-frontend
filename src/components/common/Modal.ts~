@@ -16,7 +16,6 @@ export class Modal {
   }
 
   public open(content: HTMLElement): void {
-    console.log('🪟 Открываем модалку с контентом:', content);
     this.content.innerHTML = '';
     this.content.append(content);
     this.container.classList.add('modal_active');

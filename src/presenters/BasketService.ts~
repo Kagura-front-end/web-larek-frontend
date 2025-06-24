@@ -13,18 +13,22 @@ export class BasketService {
   constructor(private events: EventEmitter) {}
 
   public init(): void {
+    console.log('[BasketService] init — subscribing to basket:add');
     this.loadFromStorage();
 
     this.events.on<'basket:add'>('basket:add', ({ id }) => {
-      this.add(id);
+      console.log(`[BasketService] basket:add received — id: ${id}`);
+      this.basket.push(id);
+      this.update();
     });
 
     this.events.on<'basket:remove'>('basket:remove', ({ id }) => {
-      this.remove(id);
+      this.basket = this.basket.filter(itemId => itemId !== id);
+      this.update();
     });
 
     this.events.on<'basket:status'>('basket:status', () => {
-      this.emitBasketChanged();
+      this.update();
     });
   }
 
@@ -61,30 +65,27 @@ export class BasketService {
       total,
     };
 
+    console.log('[BasketService] emitBasketChanged', payload);
     this.events.emit('basket:changed', payload);
   }
 
-  private add(id: UUID): void {
-    if (!this.basket.includes(id)) {
-      this.basket.push(id);
-      this.saveToStorage();
-      this.emitBasketChanged();
-      this.updateCounter();
-    }
-  }
-
-  public remove(id: UUID): void {
-    this.basket = this.basket.filter(itemId => itemId !== id);
+  private update(): void {
     this.saveToStorage();
+    console.log('[BasketService] update: emitting basket:changed');
     this.emitBasketChanged();
     this.updateCounter();
+  }
+
+  public setCatalog(catalog: IProductItem[]): void {
+    this.catalog = catalog;
   }
 
   public getItems(): IProductItem[] {
     return this.catalog.filter(product => this.basket.includes(product.id));
   }
-
-  public setCatalog(items: IProductItem[]): void {
-    this.catalog = items;
+  
+  public remove(id: UUID): void {
+    this.basket = this.basket.filter(itemId => itemId !== id);
+    this.update();
   }
 }

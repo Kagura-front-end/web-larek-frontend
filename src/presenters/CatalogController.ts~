@@ -39,6 +39,7 @@ export class CatalogController {
   }
 }
 */
+
 import { ApiService } from '../components/base/ApiService';
 import { EventEmitter } from '../components/base/events';
 import { IProductItem } from '../types';
@@ -64,10 +65,7 @@ export class CatalogController {
   public init(): void {
     this.api.getProductList()
       .then((response) => {
-        const items: IProductItem[] = Array.isArray(response)
-          ? response
-          : response.items;
-
+        const items = Array.isArray(response) ? response : response.items;
         console.log('📦 Каталог получен:', items);
         this.view.render(items);
         this.events.emit('items:changed', items);
@@ -82,3 +80,5 @@ export class CatalogController {
     this.view.render(items);
   }
 }
+
+

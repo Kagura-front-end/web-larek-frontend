@@ -15,55 +15,16 @@ export interface IOrderHandlerConstructor {
 
 export class OrderHandler {
   private view: OrderView;
+  private modalContent: HTMLElement;
 
-  constructor(
-    private options: IOrderHandlerConstructor
-  ) {
-    this.view = new OrderView(document.createElement('div'));
+  constructor(private options: IOrderHandlerConstructor) {
+    this.view = new OrderView(document.querySelector('.modal__content') as HTMLElement);
   }
 
   public init(): void {
-    const { events, api, orderService, modal } = this.options;
+    const { events, api, orderService } = this.options;
 
-    events.on('order:open', () => {
-      const content = this.view.renderOrder();
-      modal.open(content);
-
-      this.view.setSubmitEnabled(false);
-
-      this.view.setOnAddressChange((value) => {
-        this.view.setSubmitEnabled(value.length > 0);
-      });
-
-      this.view.setOnSubmit(() => {
-        // Переход ко второму шагу
-        const content = this.view.renderContacts();
-        modal.open(content);
-
-        this.view.setSubmitEnabled(false);
-
-        const validateContacts = () => {
-          const email = this.view.getEmail();
-          const phone = this.view.getPhone();
-          this.view.setSubmitEnabled(email.length > 0 && phone.length > 0);
-        };
-
-        this.view.setOnEmailChange(validateContacts);
-        this.view.setOnPhoneChange(validateContacts);
-
-        this.view.setOnSubmit(async () => {
-          const form: IOrderForm = {
-            payment: this.view.getPaymentMethod(),
-            address: this.view.getAddress(),
-            email: this.view.getEmail(),
-            phone: this.view.getPhone(),
-          };
-
-          events.emit('order:formFilled', form);
-        });
-      });
-    });
-
+    // обработка отправки полной формы
     events.on<'order:formFilled'>('order:formFilled', async (form) => {
       const fullOrder: IOrder = orderService.getFullOrder();
 
@@ -80,5 +41,45 @@ export class OrderHandler {
         console.error('Order submit failed:', error);
       }
     });
+  }
+
+  public renderFormStep1(): HTMLElement {
+    const form = this.view.renderOrder();
+    this.modalContent = form;
+
+    this.view.setOnAddressChange((value) => {
+      this.options.orderService.setAddress(value);
+      this.view.setSubmitEnabled(this.options.orderService.isFormStep1Valid());
+    });
+
+    this.view.setOnSubmit(() => {
+      const step2 = this.view.renderContacts();
+      this.modalContent.replaceWith(step2);
+      this.modalContent = step2;
+
+      this.view.setSubmitEnabled(false);
+
+      const validate = () => {
+        const email = this.view.getEmail();
+        const phone = this.view.getPhone();
+        this.view.setSubmitEnabled(email.length > 0 && phone.length > 0);
+      };
+
+      this.view.setOnEmailChange(validate);
+      this.view.setOnPhoneChange(validate);
+
+      this.view.setOnSubmit(() => {
+        const form: IOrderForm = {
+          payment: this.view.getPaymentMethod(),
+          address: this.view.getAddress(),
+          email: this.view.getEmail(),
+          phone: this.view.getPhone(),
+        };
+
+        this.options.events.emit('order:formFilled', form);
+      });
+    });
+
+    return form;
   }
 }

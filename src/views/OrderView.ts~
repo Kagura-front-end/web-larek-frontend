@@ -22,7 +22,6 @@ export class OrderView {
   }
 
   public renderOrder(): HTMLElement {
-    console.log('📄 Отрисовка первого шага формы');
     const root = this.orderTemplate.content.firstElementChild?.cloneNode(true) as HTMLElement;
     this.root = root;
 

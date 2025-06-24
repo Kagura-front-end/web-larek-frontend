@@ -13,9 +13,11 @@ export class BasketService {
   constructor(private events: EventEmitter) {}
 
   public init(): void {
+    console.log('[BasketService] init — subscribing to basket:add');
     this.loadFromStorage();
 
     this.events.on<'basket:add'>('basket:add', ({ id }) => {
+      console.log(`[BasketService] basket:add received — id: ${id}`);
       this.basket.push(id);
       this.update();
     });
@@ -63,11 +65,13 @@ export class BasketService {
       total,
     };
 
+    console.log('[BasketService] emitBasketChanged', payload);
     this.events.emit('basket:changed', payload);
   }
 
   private update(): void {
     this.saveToStorage();
+    console.log('[BasketService] update: emitting basket:changed');
     this.emitBasketChanged();
     this.updateCounter();
   }

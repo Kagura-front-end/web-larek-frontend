@@ -4,6 +4,16 @@ import { EventEmitter } from '../components/base/events';
 export class OrderService {
   private payment: PaymentMethod | null = null;
 
+  private address: string = '';
+
+  public setAddress(address: string): void {
+    this.address = address;
+  }
+
+  public isFormStep1Valid(): boolean {
+    return this.address.trim().length > 0;
+  }
+
   constructor(private events: EventEmitter) {
     this.loadFromStorage();
   }
@@ -47,3 +57,5 @@ export class OrderService {
     }
   }
 }
+
+
