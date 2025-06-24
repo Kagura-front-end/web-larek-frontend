@@ -10,8 +10,7 @@ export class BasketService {
   private basket: UUID[] = [];
   private catalog: IProductItem[] = [];
 
-  constructor(private events: EventEmitter) {
-  }
+  constructor(private events: EventEmitter) {}
 
   public init(): void {
     this.loadFromStorage();
@@ -82,5 +81,12 @@ export class BasketService {
 
   public getItems(): IProductItem[] {
     return this.catalog.filter(product => this.basket.includes(product.id));
+  }
+
+  public clear(): void {
+    this.basket = [];
+    this.saveToStorage();
+    this.emitBasketChanged();
+    this.updateCounter();
   }
 }

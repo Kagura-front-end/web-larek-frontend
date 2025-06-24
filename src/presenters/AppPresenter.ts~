@@ -60,7 +60,6 @@ export class AppPresenter {
     this.events.on('order:open', () => {
       this.modal.open(this.orderView.render());
 
-      // Ждём, пока .modal__content появится в DOM
       setTimeout(() => {
         const modalElement = document.querySelector('.modal__content');
         if (!modalElement) return;
@@ -105,6 +104,44 @@ export class AppPresenter {
           if (contactsTemplate) {
             const contactsContent = contactsTemplate.content.cloneNode(true) as HTMLElement;
             this.modal.open(contactsContent);
+
+            // Обработка формы contacts
+            setTimeout(() => {
+              const modalElement = document.querySelector('.modal__content');
+              if (!modalElement) return;
+
+              const emailInput = modalElement.querySelector<HTMLInputElement>('input[name="email"]');
+              const phoneInput = modalElement.querySelector<HTMLInputElement>('input[name="phone"]');
+              const payButton = modalElement.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+              const updatePayButton = () => {
+                const email = emailInput?.value.trim();
+                const phone = phoneInput?.value.trim();
+
+                const isValid = !!email && !!phone;
+                if (isValid) {
+                  this.orderService.setEmail(email);
+                  this.orderService.setPhone(phone);
+                }
+
+                if (payButton) {
+                  payButton.disabled = !isValid;
+                  console.log('[pay button] активна:', isValid);
+                }
+              };
+
+              emailInput?.addEventListener('input', updatePayButton);
+              phoneInput?.addEventListener('input', updatePayButton);
+
+              payButton?.addEventListener('click', (e) => {
+                e.preventDefault();
+                const successTemplate = document.getElementById('success') as HTMLTemplateElement;
+                if (successTemplate) {
+                  const successContent = successTemplate.content.cloneNode(true) as HTMLElement;
+                  this.modal.open(successContent);
+                }
+              });
+            }, 0);
           }
         });
       }, 0);

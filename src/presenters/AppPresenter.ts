@@ -75,11 +75,8 @@ export class AppPresenter {
           if (address) this.orderService.setAddress(address);
           const hasAddress = !!this.orderService.getAddress();
 
-          console.log('[updateState] hasPayment:', hasPayment, 'hasAddress:', hasAddress);
-
           if (nextButton) {
             nextButton.disabled = !(hasPayment && hasAddress);
-            console.log('[button] кнопка Далее активна:', !nextButton.disabled);
           }
         };
 
@@ -89,9 +86,6 @@ export class AppPresenter {
             btn.classList.add('button_alt-active');
 
             this.orderService.setPayment(btn.name);
-            console.log('[click] выбран способ оплаты:', btn.name);
-            console.log('[state] сохранён способ в orderService:', this.orderService.getPayment());
-
             updateState();
           });
         });
@@ -105,7 +99,6 @@ export class AppPresenter {
             const contactsContent = contactsTemplate.content.cloneNode(true) as HTMLElement;
             this.modal.open(contactsContent);
 
-            // Обработка формы contacts
             setTimeout(() => {
               const modalElement = document.querySelector('.modal__content');
               if (!modalElement) return;
@@ -126,7 +119,6 @@ export class AppPresenter {
 
                 if (payButton) {
                   payButton.disabled = !isValid;
-                  console.log('[pay button] активна:', isValid);
                 }
               };
 
@@ -135,10 +127,25 @@ export class AppPresenter {
 
               payButton?.addEventListener('click', (e) => {
                 e.preventDefault();
+
+                // Очистка корзины и сброс состояния заказа
+                this.basket.clear();
+                this.orderService.reset();
+                this.events.emit('basket:changed', { items: [], total: 0 });
+
                 const successTemplate = document.getElementById('success') as HTMLTemplateElement;
                 if (successTemplate) {
                   const successContent = successTemplate.content.cloneNode(true) as HTMLElement;
                   this.modal.open(successContent);
+
+                  setTimeout(() => {
+                    const modalElement = document.querySelector('.modal__content');
+                    const closeBtn = modalElement?.querySelector<HTMLButtonElement>('.order-success__close');
+                    closeBtn?.addEventListener('click', () => {
+                      this.modal.close();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                  }, 0);
                 }
               });
             }, 0);
