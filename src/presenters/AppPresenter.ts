@@ -19,6 +19,7 @@ export class AppPresenter {
   private api: ApiService;
   private orderView: OrderView;
   private orderService = new OrderService();
+  private lastTotal: number = 0;
 
   private basketView: BasketView;
   private modal: Modal;
@@ -56,7 +57,6 @@ export class AppPresenter {
     this.order.init();
     this.preview.init();
 
-    // Открытие формы заказа
     this.events.on('order:open', () => {
       this.modal.open(this.orderView.render());
 
@@ -128,7 +128,10 @@ export class AppPresenter {
               payButton?.addEventListener('click', (e) => {
                 e.preventDefault();
 
-                // Очистка корзины и сброс состояния заказа
+                // ✅ Используем ранее сохранённую сумму
+                const total = this.lastTotal;
+
+                // Сброс
                 this.basket.clear();
                 this.orderService.reset();
                 this.events.emit('basket:changed', { items: [], total: 0 });
@@ -136,6 +139,12 @@ export class AppPresenter {
                 const successTemplate = document.getElementById('success') as HTMLTemplateElement;
                 if (successTemplate) {
                   const successContent = successTemplate.content.cloneNode(true) as HTMLElement;
+
+                  const descriptionEl = successContent.querySelector('.order-success__description');
+                  if (descriptionEl) {
+                    descriptionEl.textContent = `Списано ${total} синапсов`;
+                  }
+
                   this.modal.open(successContent);
 
                   setTimeout(() => {
@@ -154,14 +163,16 @@ export class AppPresenter {
       }, 0);
     });
 
-    // Кнопка корзины
     document.querySelector('.header__basket')?.addEventListener('click', () => {
       this.events.emit('basket:open');
     });
 
-    // Открытие корзины
     this.events.on('basket:open', () => {
       const items = this.basket.getItems();
+
+      // ✅ сохраняем сумму до оплаты
+      this.lastTotal = items.reduce((sum, item) => sum + (item.price ?? 0), 0);
+
       const modalContent = this.basketView.render(items);
 
       this.basketView.setOnRemove((id) => {
