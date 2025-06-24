@@ -1,4 +1,6 @@
+import { CDN_URL, DEFAULT_IMAGE } from './constants';
 export type SelectorElement<T extends HTMLElement = HTMLElement> = string | T;
+
 
 export function isSelector<T extends HTMLElement>(
   selector: SelectorElement<T>
@@ -34,4 +36,12 @@ export function ensureAllElements<T extends HTMLElement>(
 ): T[] {
     const nodeList = context.querySelectorAll(selector);
     return Array.from(nodeList).filter((el): el is T => el instanceof HTMLElement);
+}
+
+export function getImageUrl(imageName: string): string {
+    if (!imageName) return DEFAULT_IMAGE;
+    if (!imageName.startsWith('/')) return DEFAULT_IMAGE;
+    //TODO need to add regular expression template for checking imageName. Template should be in constants
+    imageName = imageName.replace(/^\/+/, '');
+    return new URL(imageName, CDN_URL).toString();
 }

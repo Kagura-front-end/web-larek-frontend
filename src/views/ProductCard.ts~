@@ -16,6 +16,7 @@ export class ProductCard {
 
     const card = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
 
+    // 🔍 Находим элементы
     const categoryEl = card.querySelector('.card__category') as HTMLElement;
     const titleEl = card.querySelector('.card__title') as HTMLElement;
     const priceEl = card.querySelector('.card__price') as HTMLElement;

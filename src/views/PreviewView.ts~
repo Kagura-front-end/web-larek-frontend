@@ -42,10 +42,7 @@ export class PreviewView implements IView<IProductItem> {
       : 'Бесценно';
 
     const image = card.querySelector('.card__image') as HTMLImageElement;
-/*
     image.src = new URL(`/static/${data.image.replace(/^\/+/, '')}`, process.env.API_ORIGIN).toString();
-*/
-    image.src = getImageUrl(data.image);
     image.alt = data.title;
 
     const button = card.querySelector('.button') as HTMLButtonElement;

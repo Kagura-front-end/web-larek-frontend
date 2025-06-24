@@ -1,0 +1,143 @@
+import { IOrder, FormErrors, PaymentMethod } from '../types';
+import { OrderValidator } from '../validators/OrderValidator';
+
+export class OrderView {
+  private template: HTMLTemplateElement;
+  private element: HTMLElement;
+  private addressInput: HTMLInputElement | null = null;
+  private paymentButtons: NodeListOf<HTMLButtonElement> | null = null;
+  private submitButton: HTMLButtonElement | null = null;
+
+  private currentForm: 'order' | 'contacts' = 'order';
+
+  private order: IOrder = {
+    address: '',
+    email: '',
+    phone: '',
+    payment: undefined,
+  };
+
+  constructor(private container: HTMLElement) {
+    const template = document.getElementById('order') as HTMLTemplateElement;
+
+    if (!template) {
+      throw new Error('Order template not found');
+    }
+
+    this.template = template;
+  }
+
+  public render(): HTMLElement {
+    this.element = this.template.content.cloneNode(true) as HTMLElement;
+
+    this.addressInput = this.element.querySelector('input[name="address"]');
+    this.paymentButtons = this.element.querySelectorAll('.order__buttons .button');
+    this.submitButton = this.element.querySelector('button[type="submit"]');
+
+    this.addressInput?.addEventListener('input', () => {
+      this.order.address = this.addressInput!.value;
+      this.updateValidation();
+    });
+
+    this.paymentButtons?.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.paymentButtons!.forEach(b => b.classList.remove('button_alt-active'));
+        btn.classList.add('button_alt-active');
+        this.order.payment = btn.name as PaymentMethod;
+        this.updateValidation();
+      });
+    });
+
+    return this.element;
+  }
+
+  public getOrder(): IOrder {
+    return this.order;
+  }
+
+  public validate(): FormErrors {
+    return OrderValidator.validate(this.order);
+  }
+
+  public updateValidation(): void {
+    const errors = this.validate();
+    if (this.submitButton) {
+      this.submitButton.disabled = Object.keys(errors).length > 0;
+    }
+    this.showErrors('order', errors);
+  }
+
+  public showErrors(scope: 'order' | 'contacts', errors: FormErrors): void {
+    const errorContainer = this.element.querySelector('.form__errors');
+    if (!errorContainer) return;
+
+    const relevantErrors = Object.entries(errors)
+      .filter(([key]) =>
+        scope === 'order'
+          ? ['address', 'payment'].includes(key)
+          : ['email', 'phone'].includes(key)
+      )
+      .map(([, msg]) => msg)
+      .join(', ');
+
+    errorContainer.textContent = relevantErrors;
+  }
+
+  public setupContactsForm(): HTMLElement {
+    this.currentForm = 'contacts';
+    const contactsTemplate = document.getElementById('contacts') as HTMLTemplateElement;
+    if (!contactsTemplate) throw new Error('Contacts template not found');
+
+    this.element = contactsTemplate.content.cloneNode(true) as HTMLElement;
+
+    const emailInput = this.element.querySelector<HTMLInputElement>('input[name="email"]');
+    const phoneInput = this.element.querySelector<HTMLInputElement>('input[name="phone"]');
+    const submitButton = this.element.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    const validate = () => {
+      const errors = OrderValidator.validate(this.order);
+      this.showErrors('contacts', errors);
+      if (submitButton) {
+        submitButton.disabled = Object.keys(errors).some((key) =>
+          ['email', 'phone'].includes(key)
+        );
+      }
+    };
+
+    emailInput?.addEventListener('input', (e) => {
+      this.order.email = (e.target as HTMLInputElement).value;
+      validate();
+    });
+
+    phoneInput?.addEventListener('input', (e) => {
+      const input = e.target as HTMLInputElement;
+      let raw = input.value.replace(/\D/g, '').slice(0, 11); // ограничение по цифрам
+
+      // Простейшая маска: +7 (xxx) xxx-xx-xx
+      let formatted = raw;
+      if (raw.length > 1) {
+        formatted = `+7 (${raw.slice(1, 4)}`;
+        if (raw.length >= 4) formatted += `) ${raw.slice(4, 7)}`;
+        if (raw.length >= 7) formatted += `-${raw.slice(7, 9)}`;
+        if (raw.length >= 9) formatted += `-${raw.slice(9, 11)}`;
+      }
+
+      input.value = formatted;
+      this.order.phone = raw;
+      validate();
+    });
+
+    submitButton?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const errors = OrderValidator.validate(this.order);
+      if (Object.keys(errors).length > 0) {
+        this.showErrors('contacts', errors);
+      } else {
+        // Можно вызвать событие на успешную оплату
+        console.log('✅ Валидация прошла. Можно обрабатывать заказ.');
+      }
+    });
+
+    return this.element;
+  }
+}

@@ -128,10 +128,8 @@ export class AppPresenter {
               payButton?.addEventListener('click', (e) => {
                 e.preventDefault();
 
-                // ✅ Используем ранее сохранённую сумму
                 const total = this.lastTotal;
 
-                // Сброс
                 this.basket.clear();
                 this.orderService.reset();
                 this.events.emit('basket:changed', { items: [], total: 0 });
@@ -170,7 +168,6 @@ export class AppPresenter {
     this.events.on('basket:open', () => {
       const items = this.basket.getItems();
 
-      // ✅ сохраняем сумму до оплаты
       this.lastTotal = items.reduce((sum, item) => sum + (item.price ?? 0), 0);
 
       const modalContent = this.basketView.render(items);

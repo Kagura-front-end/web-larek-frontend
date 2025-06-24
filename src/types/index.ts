@@ -18,7 +18,7 @@ export interface IProductListResponse {
 
 export interface IAppState {
 	catalog: IProductItem[];
-	basket: UUID[];  // список id товаров
+	basket: UUID[];
 	order: IOrder | null;
 }
 

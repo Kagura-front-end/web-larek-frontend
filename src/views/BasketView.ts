@@ -23,7 +23,7 @@ export class BasketView {
 	}
 
 	public render(items: IProductItem[]): HTMLElement {
-		this.list.replaceChildren(); // лучше, чем innerHTML = ''
+		this.list.replaceChildren();
 		let total = 0;
 
 		items.forEach((item) => {
@@ -40,12 +40,6 @@ export class BasketView {
 			deleteButton.classList.add('basket__item-delete');
 			deleteButton.dataset.id = item.id;
 			deleteButton.setAttribute('aria-label', 'Удалить товар');
-
-			const deleteIcon = document.createElement('img');
-			deleteIcon.src = '/src/images/trash.svg';
-			deleteIcon.alt = 'Удалить';
-
-			deleteButton.appendChild(deleteIcon);
 
 			li.appendChild(titleEl);
 			li.appendChild(priceEl);
