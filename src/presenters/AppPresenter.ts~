@@ -58,14 +58,16 @@ export class AppPresenter {
 
     // Открытие формы заказа
     this.events.on('order:open', () => {
-      const modalContent = this.orderView.render();
-      this.modal.open(modalContent);
+      this.modal.open(this.orderView.render());
 
-      // Ждём, пока DOM вставится
+      // Ждём, пока .modal__content появится в DOM
       setTimeout(() => {
-        const buttons = modalContent.querySelectorAll<HTMLButtonElement>('.order__buttons .button');
-        const addressInput = modalContent.querySelector<HTMLInputElement>('input[name="address"]');
-        const nextButton = modalContent.querySelector<HTMLButtonElement>('button[type="submit"]');
+        const modalElement = document.querySelector('.modal__content');
+        if (!modalElement) return;
+
+        const buttons = modalElement.querySelectorAll<HTMLButtonElement>('.order__buttons .button');
+        const addressInput = modalElement.querySelector<HTMLInputElement>('input[name="address"]');
+        const nextButton = modalElement.querySelector<HTMLButtonElement>('button[type="submit"]');
 
         const updateState = () => {
           const hasPayment = !!this.orderService.getPayment();
