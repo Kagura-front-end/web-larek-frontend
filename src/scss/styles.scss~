@@ -20,20 +20,17 @@
 @use "variables" as *;
 @use "mixins";
 
-button {
-  display: inline-block;
-  padding: 0.8rem 1.2rem;
-  background-color: #000;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.basket__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
-.button:hover {
-  background-color: #333;
-}
-.card__button {
-  margin-right: auto;
+
+#basket .card__title {
+  font-family: 'YS Text', sans-serif;
+  font-weight: 500;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: 0;
 }
