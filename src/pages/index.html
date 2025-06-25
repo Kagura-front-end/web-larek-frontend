@@ -119,26 +119,17 @@
 		<div class="order">
 			<label class="order__field">
 				<span class="form__label modal__title">Email</span>
-				<input
-					name="email"
-					class="form__input"
-					type="text"
-					placeholder="Введите Email"
-				/>
+				<input name="email" class="form__input" type="email" placeholder="Введите Email" />
+				<span class="form__errors form__errors_email"></span>
 			</label>
 			<label class="order__field">
 				<span class="form__label modal__title">Телефон</span>
-				<input
-					name="phone"
-					class="form__input"
-					type="text"
-					placeholder="+7 ("
-				/>
+				<input name="phone" class="form__input" type="tel" placeholder="+7 (" />
+				<span class="form__errors form__errors_phone"></span>
 			</label>
 		</div>
 		<div class="modal__actions">
-			<button type="submit" class="button">Оплатить</button>
-			<span class="form__errors"></span>
+			<button type="submit" disabled class="button">Оплатить</button>
 		</div>
 	</form>
 </template>
