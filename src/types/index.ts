@@ -32,7 +32,7 @@ export interface IOrderForm {
 }
 
 export interface IOrder extends IOrderForm {
-	items: UUID[];
+	items: IProductItem[];
 	total: number;
 }
 

@@ -1,3 +1,4 @@
+
 import { CatalogView } from '../views/CatalogView';
 import { CatalogController } from './CatalogController';
 import { BasketService } from './BasketService';
@@ -10,6 +11,7 @@ import { BasketView } from '../views/BasketView';
 import { Modal } from '../components/common/Modal';
 import { OrderView } from '../views/OrderView';
 import { OrderService } from '../models/OrderService';
+import { IOrder, PaymentMethod } from '../types';
 
 export class AppPresenter {
   private catalog: CatalogController;
@@ -58,7 +60,21 @@ export class AppPresenter {
     this.preview.init();
 
     this.events.on('order:open', () => {
-      this.modal.open(this.orderView.render());
+      const orderContent = this.orderView.render();
+      this.modal.open(orderContent);
+
+      this.orderView.setOnSubmit(() => {
+        const order: IOrder = {
+          address: this.orderService.getAddress(),
+          email: this.orderService.getEmail(),
+          phone: this.orderService.getPhone(),
+          payment: this.orderService.getPayment() as PaymentMethod,
+          items: this.basket.getItems(),
+          total: this.lastTotal,
+        };
+
+        this.events.emit('order:submit', order);
+      });
 
       setTimeout(() => {
         const modalElement = document.querySelector('.modal__content');
@@ -67,95 +83,57 @@ export class AppPresenter {
         const buttons = modalElement.querySelectorAll<HTMLButtonElement>('.order__buttons .button');
         const addressInput = modalElement.querySelector<HTMLInputElement>('input[name="address"]');
         const nextButton = modalElement.querySelector<HTMLButtonElement>('button[type="submit"]');
+        const errorContainer = modalElement.querySelector<HTMLSpanElement>('.form__errors');
+        const paymentErrorContainer = modalElement.querySelector('.form__errors_payment') as HTMLElement;
+        const addressErrorContainer = modalElement.querySelector('.form__errors_address') as HTMLElement;
 
-        const updateState = () => {
-          const hasPayment = !!this.orderService.getPayment();
-          const address = addressInput?.value.trim();
+        const validate = () => {
+          let isValid = true;
 
-          if (address) this.orderService.setAddress(address);
-          const hasAddress = !!this.orderService.getAddress();
+          const payment = this.orderService.getPayment();
+          const address = addressInput?.value.trim() || '';
 
-          if (nextButton) {
-            nextButton.disabled = !(hasPayment && hasAddress);
+          // Обнуляем ошибки
+          paymentErrorContainer.textContent = '';
+          addressErrorContainer.textContent = '';
+
+          // Проверка способа оплаты
+          if (!payment) {
+            paymentErrorContainer.textContent = 'Выберите способ оплаты';
+            isValid = false;
           }
+
+          // Проверка адреса
+          if (address.length < 20 || /\s{2,}/.test(address)) {
+            addressErrorContainer.textContent = 'Адрес должен содержать минимум 20 символов';
+            isValid = false;
+          } else {
+            this.orderService.setAddress(address);
+          }
+
+          nextButton!.disabled = !isValid;
         };
 
         buttons.forEach(btn => {
           btn.addEventListener('click', () => {
             buttons.forEach(b => b.classList.remove('button_alt-active'));
             btn.classList.add('button_alt-active');
-
-            this.orderService.setPayment(btn.name);
-            updateState();
+            this.orderService.setPayment(btn.name as PaymentMethod);
+            validate();
           });
         });
 
-        addressInput?.addEventListener('input', updateState);
+        addressInput?.addEventListener('input', validate);
 
         nextButton?.addEventListener('click', (e) => {
           e.preventDefault();
-          const contactsTemplate = document.getElementById('contacts') as HTMLTemplateElement;
-          if (contactsTemplate) {
-            const contactsContent = contactsTemplate.content.cloneNode(true) as HTMLElement;
-            this.modal.open(contactsContent);
-
-            setTimeout(() => {
-              const modalElement = document.querySelector('.modal__content');
-              if (!modalElement) return;
-
-              const emailInput = modalElement.querySelector<HTMLInputElement>('input[name="email"]');
-              const phoneInput = modalElement.querySelector<HTMLInputElement>('input[name="phone"]');
-              const payButton = modalElement.querySelector<HTMLButtonElement>('button[type="submit"]');
-
-              const updatePayButton = () => {
-                const email = emailInput?.value.trim();
-                const phone = phoneInput?.value.trim();
-
-                const isValid = !!email && !!phone;
-                if (isValid) {
-                  this.orderService.setEmail(email);
-                  this.orderService.setPhone(phone);
-                }
-
-                if (payButton) {
-                  payButton.disabled = !isValid;
-                }
-              };
-
-              emailInput?.addEventListener('input', updatePayButton);
-              phoneInput?.addEventListener('input', updatePayButton);
-
-              payButton?.addEventListener('click', (e) => {
-                e.preventDefault();
-
-                const total = this.lastTotal;
-
-                this.basket.clear();
-                this.orderService.reset();
-                this.events.emit('basket:changed', { items: [], total: 0 });
-
-                const successTemplate = document.getElementById('success') as HTMLTemplateElement;
-                if (successTemplate) {
-                  const successContent = successTemplate.content.cloneNode(true) as HTMLElement;
-
-                  const descriptionEl = successContent.querySelector('.order-success__description');
-                  if (descriptionEl) {
-                    descriptionEl.textContent = `Списано ${total} синапсов`;
-                  }
-
-                  this.modal.open(successContent);
-
-                  setTimeout(() => {
-                    const modalElement = document.querySelector('.modal__content');
-                    const closeBtn = modalElement?.querySelector<HTMLButtonElement>('.order-success__close');
-                    closeBtn?.addEventListener('click', () => {
-                      this.modal.close();
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    });
-                  }, 0);
-                }
-              });
-            }, 0);
+          validate();
+          if (!nextButton?.disabled) {
+            const contactsTemplate = document.getElementById('contacts') as HTMLTemplateElement;
+            if (contactsTemplate) {
+              const contactsContent = contactsTemplate.content.cloneNode(true) as HTMLElement;
+              this.modal.open(contactsContent);
+            }
           }
         });
       }, 0);
@@ -167,9 +145,7 @@ export class AppPresenter {
 
     this.events.on('basket:open', () => {
       const items = this.basket.getItems();
-
       this.lastTotal = items.reduce((sum, item) => sum + (item.price ?? 0), 0);
-
       const modalContent = this.basketView.render(items);
 
       this.basketView.setOnRemove((id) => {
