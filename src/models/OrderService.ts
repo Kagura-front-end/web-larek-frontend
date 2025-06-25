@@ -7,6 +7,7 @@ export class OrderService {
 	setPayment(method: string) {
 		this.payment = method;
 	}
+
 	getPayment() {
 		return this.payment;
 	}
@@ -14,6 +15,7 @@ export class OrderService {
 	setAddress(value: string) {
 		this.address = value;
 	}
+
 	getAddress() {
 		return this.address;
 	}
@@ -21,6 +23,7 @@ export class OrderService {
 	setEmail(value: string) {
 		this.email = value;
 	}
+
 	getEmail() {
 		return this.email;
 	}
@@ -28,6 +31,7 @@ export class OrderService {
 	setPhone(value: string) {
 		this.phone = value;
 	}
+
 	getPhone() {
 		return this.phone;
 	}

@@ -20,16 +20,12 @@
 	</header>
 	<main class="gallery"></main>
 </div>
-
-<!-- Modal: Preview -->
 <div class="modal" id="modal-preview">
 	<div class="modal__container">
 		<button class="modal__close" aria-label="закрыть"></button>
 		<div class="modal__content"></div>
 	</div>
 </div>
-
-<!-- Template: Card in Catalog -->
 <template id="card-catalog">
 	<button class="gallery__item card">
 		<span class="card__category">софт-скил</span>
@@ -38,8 +34,6 @@
 		<span class="card__price">750 синапсов</span>
 	</button>
 </template>
-
-<!-- Template: Card Preview -->
 <template id="card-preview">
 	<div class="card card_full">
 		<img class="card__image" src="<%=require('../images/Subtract.svg')%>" alt="" />
@@ -54,8 +48,6 @@
 		</div>
 	</div>
 </template>
-
-<!-- Template: Basket -->
 <template id="basket">
 	<div class="basket">
 		<h2 class="modal__title">Корзина</h2>
@@ -66,15 +58,11 @@
 		</div>
 	</div>
 </template>
-
-<!-- Template: Basket Item -->
 <template id="card-basket">
 	<li class="basket__item">
 		<span class="basket__item-index">1</span>
-
 		<div class="basket__item-main">
 			<span class="basket__item-title">HEX-леденец</span>
-
 			<div class="basket__item-controls">
 				<span class="basket__item-price">1450 синапсов</span>
 				<button class="basket__item-delete"></button>
@@ -82,7 +70,6 @@
 		</div>
 	</li>
 </template>
-
 <template id="order">
 	<form class="form" name="order">
 		<div class="order">
@@ -94,7 +81,6 @@
 				</div>
 				<span class="form__errors form__errors_payment"></span>
 			</fieldset>
-
 			<label class="order__field">
 				<span class="form__label modal__title">Адрес доставки</span>
 				<input
@@ -106,14 +92,11 @@
 				<span class="form__errors form__errors_address"></span>
 			</label>
 		</div>
-
 		<div class="modal__actions">
 			<button type="submit" disabled class="button order__button">Далее</button>
 		</div>
 	</form>
 </template>
-
-<!-- Template: Contacts -->
 <template id="contacts">
 	<form class="form" name="contacts">
 		<div class="order">
@@ -133,9 +116,6 @@
 		</div>
 	</form>
 </template>
-
-
-<!-- Template: Order Success -->
 <template id="success">
 	<div class="order-success">
 		<h2 class="order-success__title">Заказ оформлен</h2>

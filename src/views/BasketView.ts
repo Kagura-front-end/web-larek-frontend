@@ -26,7 +26,8 @@ export class BasketView {
 		this.list.replaceChildren();
 		let total = 0;
 
-		items.forEach((item, index) => {			const li = document.createElement('li');
+		items.forEach((item, index) => {
+			const li = document.createElement('li');
 			li.classList.add('basket__item');
 
 			const indexEl = document.createElement('span');
