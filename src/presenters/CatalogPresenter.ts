@@ -9,7 +9,7 @@ export interface ICatalogControllerConstructor {
 	view: CatalogView;
 }
 
-export class CatalogController {
+export class CatalogPresenter {
 	private api: ApiService;
 	private events: EventEmitter;
 	private view: CatalogView;

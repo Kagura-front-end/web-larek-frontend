@@ -12,7 +12,7 @@ src/
 ├── components/        # Общие компоненты (Modal, EventEmitter и др.)
 │   └── base/          # Базовые абстракции (ApiService, events)
 ├── models/            # OrderService и другие бизнес-модели
-├── presenters/        # Презентеры (AppPresenter, CatalogController, BasketService и др.)
+├── presenters/        # Презентеры (AppPresenter, CatalogPresenter, BasketService и др.)
 ├── styles/            # SCSS-стили
 ├── utils/             # Утилиты (getImageUrl и др.)
 ├── views/             # View-компоненты (CatalogView, BasketView, PreviewView и др.)
@@ -27,7 +27,7 @@ Model: OrderService, типы заказа, структура корзины.
 
 View: Компоненты визуализации (CatalogView, PreviewView, BasketView).
 
-Presenter: AppPresenter, CatalogController, OrderHandler.
+Presenter: AppPresenter, CatalogPresenter, OrderHandler.
 
 ⛔ Валидация форм не вынесена в отдельные презентеры, а реализована напрямую внутри AppPresenter.ts.
 
@@ -69,7 +69,7 @@ AppPresenter.ts
 
 Слушает и испускает события через EventEmitter.
 
-CatalogController.ts
+CatalogPresenter.ts
 Получает товары с API и передаёт в CatalogView.
 
 PreviewPresenter.ts
@@ -87,7 +87,7 @@ OrderHandler.ts
 
 🔁 Взаимодействие компонентов
 
-CatalogController → CatalogView → [click] → EventEmitter → PreviewPresenter → PreviewView
+CatalogPresenter → CatalogView → [click] → EventEmitter → PreviewPresenter → PreviewView
 BasketService ⇄ BasketView
 AppPresenter ↔ Modal → OrderView / Contacts form / Success
 🧠 Паттерны

@@ -6,6 +6,11 @@ export class BasketView {
 	private submitButton: HTMLButtonElement;
 	private root: HTMLElement;
 
+	public updateCounter(count: number): void {
+		const counter = document.querySelector('.header__basket-counter');
+		if (counter) counter.textContent = String(count);
+	}
+
 	constructor() {
 		const template = document.getElementById('basket') as HTMLTemplateElement;
 		if (!template) {
@@ -19,6 +24,7 @@ export class BasketView {
 		this.submitButton = this.root.querySelector('.basket__button') as HTMLButtonElement;
 
 		this.submitButton.disabled = true;
+
 	}
 
 	public render(items: IProductItem[]): HTMLElement {

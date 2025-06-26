@@ -1,5 +1,5 @@
 import { CatalogView } from '../views/CatalogView';
-import { CatalogController } from './CatalogController';
+import { CatalogPresenter } from './CatalogPresenter';
 import { BasketService } from './BasketService';
 import { OrderHandler } from './OrderHandler';
 import { EventEmitter } from '../components/base/events';
@@ -10,10 +10,10 @@ import { BasketView } from '../views/BasketView';
 import { Modal } from '../components/common/Modal';
 import { OrderView } from '../views/OrderView';
 import { OrderService } from '../models/OrderService';
-import { IOrder, PaymentMethod } from '../types';
+import { IOrder, IProductItem, PaymentMethod } from '../types';
 
 export class AppPresenter {
-	private catalog: CatalogController;
+	private catalog: CatalogPresenter;
 	private basket: BasketService;
 	private order: OrderHandler;
 	private preview: PreviewPresenter;
@@ -36,7 +36,7 @@ export class AppPresenter {
 		this.preview = new PreviewPresenter(this.events, previewView);
 		this.basketView = new BasketView();
 
-		this.catalog = new CatalogController({
+		this.catalog = new CatalogPresenter({
 			api: this.api,
 			events: this.events,
 			view: catalogView,
@@ -57,6 +57,10 @@ export class AppPresenter {
 		this.basket.init();
 		this.order.init();
 		this.preview.init();
+
+		this.events.on<{ items: IProductItem[]; total: number }>('basket:changed', ({ items }) => {
+			this.basketView.updateCounter(items.length);
+		});
 
 		this.events.on('order:open', () => {
 			const orderContent = this.orderView.render();
@@ -209,6 +213,7 @@ export class AppPresenter {
 		this.events.on('basket:open', () => {
 			const items = this.basket.getItems();
 			this.lastTotal = items.reduce((sum: number, item) => sum + (item.price ?? 0), 0);
+			this.basketView.updateCounter(items.length);
 			const modalContent = this.basketView.render(items);
 
 			this.basketView.setOnRemove((id: string) => {

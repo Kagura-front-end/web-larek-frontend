@@ -35,7 +35,6 @@ export class BasketService {
 				const parsed = JSON.parse(data);
 				if (Array.isArray(parsed)) {
 					this.basket = parsed;
-					this.updateCounter();
 				}
 			} catch (e) {
 				console.warn('Failed to parse basket from storage', e);
@@ -45,11 +44,6 @@ export class BasketService {
 
 	private saveToStorage(): void {
 		localStorage.setItem('basket', JSON.stringify(this.basket));
-	}
-
-	private updateCounter(): void {
-		const counter = document.querySelector('.header__basket-counter');
-		if (counter) counter.textContent = String(this.basket.length);
 	}
 
 	private emitBasketChanged(): void {
@@ -69,7 +63,6 @@ export class BasketService {
 			this.basket.push(id);
 			this.saveToStorage();
 			this.emitBasketChanged();
-			this.updateCounter();
 		}
 	}
 
@@ -77,7 +70,6 @@ export class BasketService {
 		this.basket = this.basket.filter(itemId => itemId !== id);
 		this.saveToStorage();
 		this.emitBasketChanged();
-		this.updateCounter();
 	}
 
 	public getItems(): IProductItem[] {
@@ -88,6 +80,5 @@ export class BasketService {
 		this.basket = [];
 		this.saveToStorage();
 		this.emitBasketChanged();
-		this.updateCounter();
 	}
 }
