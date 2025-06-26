@@ -1,6 +1,6 @@
 import { IProductItem } from '../types';
 import { IView } from '../interfaces/IView';
-import { getImageUrl } from '../utils/utils';
+import { setImage } from '../utils/utils';
 
 export class PreviewView implements IView<IProductItem> {
   private template: HTMLTemplateElement;
@@ -31,7 +31,6 @@ export class PreviewView implements IView<IProductItem> {
   public render(data: IProductItem): void {
     this.currentId = data.id;
 
-    this.container.innerHTML = '';
     const card = this.template.content.cloneNode(true) as HTMLElement;
 
     (card.querySelector('.card__title') as HTMLElement).textContent = data.title;
@@ -42,18 +41,14 @@ export class PreviewView implements IView<IProductItem> {
       : 'Бесценно';
 
     const image = card.querySelector('.card__image') as HTMLImageElement;
-/*
-    image.src = new URL(`/static/${data.image.replace(/^\/+/, '')}`, process.env.API_ORIGIN).toString();
-*/
-    image.src = getImageUrl(data.image);
-    image.alt = data.title;
+    setImage(image, data.image, data.title);
 
     const button = card.querySelector('.button') as HTMLButtonElement;
     button.classList.add('card__button');
     button.dataset.id = data.id;
     button.textContent = 'В корзину';
 
-    this.container.appendChild(card);
+    this.container.replaceChildren(card); 
     this.modal.classList.add('modal_active');
   }
 

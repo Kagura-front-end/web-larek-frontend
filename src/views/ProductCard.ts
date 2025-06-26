@@ -1,6 +1,6 @@
 import { IProductItem } from '../types/index';
 import { categoryMapping } from '../types/index';
-import { getImageUrl } from '../utils/utils';
+import { setImage } from '../utils/utils';
 
 
 export class ProductCard {
@@ -29,10 +29,7 @@ export class ProductCard {
       ? `${this.item.price} синапсов`
       : 'Бесценно';
 
-    if (imageEl) {
-      imageEl.src = getImageUrl(this.item.image);
-      imageEl.alt = this.item.title;
-    }
+    setImage(imageEl, this.item.image, this.item.title);
 
     card.setAttribute('data-id', this.item.id);
     return card;

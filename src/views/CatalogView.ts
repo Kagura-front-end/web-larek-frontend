@@ -15,7 +15,8 @@ export class CatalogView implements IView<IProductItem[]> {
   }
 
   public render(items: IProductItem[]): void {
-    this.container.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+
     items.forEach((item) => {
       const card = new ProductCard(item).render();
 
@@ -23,9 +24,10 @@ export class CatalogView implements IView<IProductItem[]> {
         this.events.emit('preview:changed', item);
       });
 
-      this.container.appendChild(card);
+      fragment.appendChild(card);
     });
-  }
 
+    this.container.replaceChildren(fragment);
+  }
 }
 

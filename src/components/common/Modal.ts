@@ -24,8 +24,7 @@ export class Modal {
 	}
 
 	public open(content: HTMLElement): void {
-		this.content.innerHTML = '';
-		this.content.appendChild(content);
+		this.content.replaceChildren(content);
 		this.container.classList.add('modal_active');
 	}
 

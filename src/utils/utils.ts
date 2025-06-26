@@ -45,3 +45,11 @@ export function getImageUrl(imageName: string): string {
 	imageName = imageName.replace(/^\/+/, '');
 	return new URL(imageName, CDN_URL).toString();
 }
+
+
+export function setImage(imageEl: HTMLImageElement | null, imagePath: string, altText = ''): void {
+	if (!imageEl) return;
+
+	imageEl.src = getImageUrl(imagePath);
+	imageEl.alt = altText || 'Изображение';
+}
