@@ -1,5 +1,4 @@
 import { IProductItem } from '../types';
-import { ensureElement } from '../utils/utils';
 
 export class BasketView {
 	private list: HTMLElement;

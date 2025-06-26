@@ -22,8 +22,7 @@ export class OrderView {
     }
 
     this.form.addEventListener('submit', (e) => {
-      e.preventDefault(); // prevent default form submission behavior
-      // no browser validation check here – you handle everything manually
+      e.preventDefault();
       callback();
     });
   }
