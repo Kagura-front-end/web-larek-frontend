@@ -18,7 +18,6 @@ export class BasketView {
 		}
 
 		this.root = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
-
 		this.list = this.root.querySelector('.basket__list') as HTMLElement;
 		this.priceEl = this.root.querySelector('.basket__price') as HTMLElement;
 		this.submitButton = this.root.querySelector('.basket__button') as HTMLButtonElement;
