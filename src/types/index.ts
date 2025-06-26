@@ -74,6 +74,6 @@ export const categoryMapping: CategoryMapping = {
 	'другое': 'other',
 	'дополнительное': 'additional',
 	'кнопка': 'button',
-	'хард-скил': 'hard'
+	'хард-скил': 'hard',
 };
 

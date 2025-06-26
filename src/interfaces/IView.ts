@@ -1,4 +1,5 @@
 export interface IView<T> {
-  render(data: T): void;
-  close?(): void;
+	render(data: T): void;
+
+	close?(): void;
 }
