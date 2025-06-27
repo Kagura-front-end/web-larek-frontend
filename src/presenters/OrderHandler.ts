@@ -17,7 +17,7 @@ export class OrderHandler {
 				const result: IOrderResponse = await this.options.api.sendOrder(order);
 				this.options.events.emit('order:success', result);
 			} catch (error) {
-				console.error('Order submit failed:', error);
+				console.error('Не получилось отправить заказ:', error);
 			}
 		});
 	}

@@ -15,20 +15,27 @@ export class Modal {
 				this.close();
 			}
 		});
-
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape') {
-				this.close();
-			}
-		});
 	}
+
+	private _toggleModal(state = true) {
+		this.container.classList.toggle('modal_active', state);
+	}
+
+	private _handleEscape = (evt: KeyboardEvent) => {
+		if (evt.key === 'Escape') {
+			this.close();
+		}
+	};
 
 	public open(content: HTMLElement): void {
 		this.content.replaceChildren(content);
-		this.container.classList.add('modal_active');
+		this._toggleModal();
+		document.addEventListener('keydown', this._handleEscape);
 	}
 
 	public close(): void {
-		this.container.classList.remove('modal_active');
+		this._toggleModal(false);
+		this.content.replaceChildren();
+		document.removeEventListener('keydown', this._handleEscape);
 	}
 }

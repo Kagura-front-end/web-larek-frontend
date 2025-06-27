@@ -26,7 +26,12 @@ export class Api {
 		return fetch(this.baseUrl + uri, {
 			...this.options,
 			method: 'GET',
-		}).then((response) => this.handleResponse<T>(response));
+		})
+			.then((response) => this.handleResponse<T>(response))
+			.catch((error) => {
+				console.error('GET error:', error);
+				return Promise.reject(error);
+			});
 	}
 
 	public post<T>(
@@ -38,6 +43,11 @@ export class Api {
 			...this.options,
 			method,
 			body: JSON.stringify(data),
-		}).then((response) => this.handleResponse<T>(response));
+		})
+			.then((response) => this.handleResponse<T>(response))
+			.catch((error) => {
+				console.error(`${method} error:`, error);
+				return Promise.reject(error);
+			});
 	}
 }

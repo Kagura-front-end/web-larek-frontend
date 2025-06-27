@@ -25,6 +25,9 @@ export class CatalogPresenter {
 			.then((response) => {
 				this.view.render(response.items);
 				this.events.emit('items:changed', response.items);
+			})
+			.catch((error) => {
+				console.error('Произошла ошибка при загрузке списка:', error);
 			});
 	}
 }
