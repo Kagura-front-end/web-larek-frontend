@@ -1,8 +1,8 @@
 import { IProductItem } from '../types';
-import { IView } from '../interfaces/IView';
+import { IPreviewView } from '../interfaces/IPreviewView';
 import { setImage } from '../utils/utils';
 
-export class PreviewView implements IView<IProductItem> {
+export class PreviewView implements IPreviewView {
 	private template: HTMLTemplateElement;
 	private container: HTMLElement;
 	private modal: HTMLElement;
@@ -80,13 +80,6 @@ export class PreviewView implements IView<IProductItem> {
 	public updateButtonState(id: string, inBasket: boolean): void {
 		const button = this.container.querySelector<HTMLButtonElement>('.card__button');
 
-		console.log('[updateButtonState]', {
-			currentId: this.currentId,
-			id,
-			button,
-			inBasket,
-		});
-
 		if (!button || button.dataset.id !== id) return;
 
 		setTimeout(() => {
@@ -96,5 +89,9 @@ export class PreviewView implements IView<IProductItem> {
 
 	public getCurrentId(): string | null {
 		return this.currentId;
+	}
+
+	public getContainer(): HTMLElement {
+		return this.container;
 	}
 }

@@ -11,8 +11,7 @@ export class PreviewPresenter {
 	constructor(
 		private events: EventEmitter,
 		private view: IPreviewView,
-	) {
-	}
+	) {}
 
 	public init(): void {
 		this.events.on<IProductItem>('preview:changed', (item) => {
@@ -30,12 +29,15 @@ export class PreviewPresenter {
 			},
 		);
 
-		document.addEventListener('click', (event) => {
-			const target = event.target as HTMLElement;
-			if (target.classList.contains('modal__close')) {
-				this.view.close();
-			}
-		});
+		const container = this.view.getContainer?.();
+		if (container) {
+			container.addEventListener('click', (event) => {
+				const target = event.target as HTMLElement;
+				if (target.classList.contains('modal__close')) {
+					this.view.close();
+				}
+			});
+		}
 
 		this.events.on<BasketChangedEvent>('basket:changed', (basket) => {
 			const currentId = this.view.getCurrentId();

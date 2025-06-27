@@ -13,3 +13,17 @@ export interface IPreviewView extends IView<IProductItem> {
 
 	getCurrentId(): UUID | null;
 }
+
+export interface IPreviewView {
+	render(data: IProductItem): void;
+
+	close(): void;
+
+	bindAddToCart(handler: (id: string) => void, openBasket: () => void): void;
+
+	updateButtonState(id: string, inBasket: boolean): void;
+
+	getCurrentId(): string | null;
+
+	getContainer?(): HTMLElement;
+}

@@ -1,24 +1,31 @@
 import { EventEmitter } from '../components/base/events';
 import { ApiService } from '../components/base/ApiService';
-import { IOrder, IOrderResponse } from '../types';
+import { IOrder } from '../types';
 
-export interface IOrderHandlerConstructor {
+interface OrderHandlerOptions {
 	api: ApiService;
 	events: EventEmitter;
 }
 
 export class OrderHandler {
-	constructor(private options: IOrderHandlerConstructor) {
+	private api: ApiService;
+	private events: EventEmitter;
+
+	constructor(options: OrderHandlerOptions) {
+		this.api = options.api;
+		this.events = options.events;
 	}
 
 	public init(): void {
-		this.options.events.on<IOrder>('order:submit', async (order) => {
-			try {
-				const result: IOrderResponse = await this.options.api.sendOrder(order);
-				this.options.events.emit('order:success', result);
-			} catch (error) {
-				console.error('Не получилось отправить заказ:', error);
-			}
+		this.events.on<IOrder>('order:submit', (order) => {
+			this.api.post('/order', order)
+				.then(() => {
+					console.log('Заказ успешно отправлен');
+				})
+				.catch((error) => {
+					console.error('Ошибка при отправке заказа:', error);
+					this.events.emit('order:error', { message: 'Не удалось оформить заказ. Попробуйте позже.' });
+				});
 		});
 	}
 }

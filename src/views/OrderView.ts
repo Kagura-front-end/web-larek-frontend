@@ -1,6 +1,6 @@
 export class OrderView {
 	private template: HTMLTemplateElement;
-	private form?: HTMLFormElement;
+	private formSelector = 'form';
 
 	constructor(private container: HTMLElement) {
 		const template = document.getElementById('order') as HTMLTemplateElement;
@@ -11,19 +11,27 @@ export class OrderView {
 	}
 
 	public render(): HTMLElement {
-		const fragment = this.template.content.cloneNode(true) as HTMLElement;
-		this.form = fragment.querySelector('form')!;
-		return fragment;
+		return this.template.content.cloneNode(true) as HTMLElement;
 	}
 
 	public setOnSubmit(callback: () => void): void {
-		if (!this.form) {
-			throw new Error('Form is not rendered yet');
-		}
+		setTimeout(() => {
+			const modalElement = document.querySelector('.modal__content');
+			if (!modalElement) {
+				console.warn('Modal content not found');
+				return;
+			}
 
-		this.form.addEventListener('submit', (e) => {
-			e.preventDefault();
-			callback();
-		});
+			const form = modalElement.querySelector(this.formSelector) as HTMLFormElement;
+			if (!form) {
+				console.warn('Form not found inside modal content');
+				return;
+			}
+
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				callback();
+			});
+		}, 0);
 	}
 }

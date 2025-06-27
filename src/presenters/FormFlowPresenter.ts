@@ -15,8 +15,7 @@ interface FormFlowPresenterOptions {
 }
 
 export class FormFlowPresenter {
-	constructor(private options: FormFlowPresenterOptions) {
-	}
+	constructor(private options: FormFlowPresenterOptions) {}
 
 	public start(): void {
 		const { orderView, modal, orderService } = this.options;
@@ -24,20 +23,22 @@ export class FormFlowPresenter {
 		const content = orderView.render();
 		modal.open(content);
 
-		orderView.setOnSubmit(() => {
-			const order: IOrder = {
-				address: orderService.getAddress(),
-				email: orderService.getEmail(),
-				phone: orderService.getPhone(),
-				payment: orderService.getPayment() as PaymentMethod,
-				items: this.options.basketItems(),
-				total: this.options.getTotal(),
-			};
+		setTimeout(() => {
+			orderView.setOnSubmit(() => {
+				const order: IOrder = {
+					address: orderService.getAddress(),
+					email: orderService.getEmail(),
+					phone: orderService.getPhone(),
+					payment: orderService.getPayment() as PaymentMethod,
+					items: this.options.basketItems(),
+					total: this.options.getTotal(),
+				};
 
-			this.options.events.emit('order:submit', order);
-		});
+				this.options.events.emit('order:submit', order);
+			});
 
-		setTimeout(() => this.setupFirstStep(), 0);
+			this.setupFirstStep();
+		}, 0);
 	}
 
 	private setupFirstStep(): void {
@@ -46,7 +47,7 @@ export class FormFlowPresenter {
 
 		const buttons = modalElement.querySelectorAll<HTMLButtonElement>('.order__buttons .button');
 		const addressInput = modalElement.querySelector<HTMLInputElement>('input[name="address"]');
-		const nextButton = modalElement.querySelector<HTMLButtonElement>('button[type="submit"]');
+		const nextButton = modalElement.querySelector<HTMLButtonElement>('.order__button');
 		const paymentErrorContainer = modalElement.querySelector('.form__errors_payment') as HTMLElement;
 		const addressErrorContainer = modalElement.querySelector('.form__errors_address') as HTMLElement;
 
@@ -136,13 +137,15 @@ export class FormFlowPresenter {
 			emailInput?.addEventListener('input', updatePayButton);
 			phoneInput?.addEventListener('input', updatePayButton);
 
-			payButton?.addEventListener('click', () => {
+			const form = modalElement.querySelector<HTMLFormElement>('form');
+			form?.addEventListener('submit', (e) => {
+				e.preventDefault();
+
 				const total = this.options.getTotal();
 				this.options.clearBasket();
 				this.options.orderService.reset();
 
 				this.options.events.emit('basket:changed', { items: [], total });
-
 				this.options.modal.openTemplate('success');
 
 				setTimeout(() => {
