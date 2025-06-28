@@ -337,7 +337,9 @@ interface IAppEvents {
 'basket:add': string;
 'basket:remove': string;
 'basket:changed': { items: IProductItem[]; total: number };
-...
+'order:submit': IApiOrder;
+'order:success': IOrderResponse;
+'formErrors:change': FormErrors;
 }
 
 Интерфейс всех событий приложения и их payload'ов. Используется в EventEmitter.
@@ -362,12 +364,36 @@ items: IProductItem[];
 total: number;
 }
 
+IApiOrder
+interface IApiOrder {
+address: string;
+email: string;
+phone: string;
+payment: PaymentMethod;
+items: string[];
+total: number;
+}
+
+Описание: Тип объекта, отправляемого в POST-запросе на сервер при оформлении заказа. Используется в FormFlowPresenter и OrderHandler.
+
+IOrderResponse
+interface IOrderResponse {
+id: UUID;
+total: number;
+}
+
+Описание: Тип ответа от сервера после успешного оформления заказа. Используется для отображения экрана успеха.
+
 PaymentMethod
 type PaymentMethod = 'card' | 'cash';
 ModalType
 type ModalType = 'preview' | 'basket' | 'order' | 'contacts' | 'success';
 UUID
 type UUID = string;
+
+FormErrors
+type FormErrors = Partial<Record<keyof IOrder, string>>;
+Описание: Тип, описывающий возможные ошибки формы. Используется в событии formErrors:change и валидации формы.
 
 ----------------------------------------------------------------------------------------------------------
 
