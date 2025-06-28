@@ -49,16 +49,16 @@ src/
 ## Событийная система
 Все компоненты взаимодействуют через EventEmitter. Ниже — таблица всех событий в проекте:
 
-| Событие        | Кто эмитит           | Кто слушает                     | Что делает                                              |
-|----------------|----------------------|---------------------------------|----------------------------------------------------------|
-| items:changed  | CatalogPresenter     | BasketService                   | Сохраняет каталог для получения товаров по ID            |
-| preview:changed| CatalogView          | PreviewPresenter                | Показывает модалку предпросмотра товара                  |
-| basket:add     | PreviewView (кнопка) | BasketService                   | Добавляет товар в корзину                                |
-| basket:remove  | BasketView           | BasketService                   | Удаляет товар из корзины                                 |
-| basket:get     | PreviewPresenter     | BasketService                   | Проверяет, есть ли товар в корзине                       |
-| basket:status  | BasketService        | PreviewPresenter                | Обновляет текст кнопки                                   |
-| basket:changed | BasketService        | AppPresenter, BasketView, FormFlow | Обновляет UI и корзину                               |
-| order:submit   | FormFlowPresenter    | OrderHandler                    | Отправляет POST-запрос с заказом                         |
+| Событие        | Кто эмитит           | Кто слушает                     | Что делает                                                  |
+|----------------|----------------------|---------------------------------|--------------------------------------------------------------|
+| items:changed  | CatalogPresenter     | BasketService                   | Сохраняет каталог для получения товаров по ID                |
+| preview:changed| CatalogView          | PreviewPresenter                | Показывает модалку предпросмотра товара                      |
+| basket:add     | PreviewView (кнопка) | BasketService                   | Добавляет товар в корзину                                    |
+| basket:remove  | BasketView           | BasketService                   | Удаляет товар из корзины                                     |
+| basket:get     | PreviewPresenter     | BasketService                   | Проверяет, есть ли товар в корзине                           |
+| basket:status  | BasketService        | PreviewPresenter                | Обновляет текст кнопки                                       |
+| basket:changed | BasketService        | AppPresenter, BasketView, FormFlow | Обновляет UI и корзину                                   |
+| **order:submit**   | FormFlowPresenter    | OrderHandler                    | Отправляет POST-запрос с заказом (`IApiOrder`)               |   | Отправляет POST-запрос с заказом                         |
 
 ##Описание классов в 3 частях - презентеры, views-компоненты, утилиты и остальные классы:
       1) Презентеры:
