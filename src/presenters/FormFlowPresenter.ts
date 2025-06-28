@@ -15,7 +15,8 @@ interface FormFlowPresenterOptions {
 }
 
 export class FormFlowPresenter {
-	constructor(private options: FormFlowPresenterOptions) {}
+	constructor(private options: FormFlowPresenterOptions) {
+	}
 
 	public start(): void {
 		const { orderView, modal } = this.options;
@@ -23,10 +24,6 @@ export class FormFlowPresenter {
 		modal.open(content);
 
 		setTimeout(() => {
-			orderView.setOnSubmit(() => {
-				const order = this.buildOrder();
-				this.options.events.emit('order:submit', order);
-			});
 			this.setupFirstStep();
 		}, 0);
 	}
