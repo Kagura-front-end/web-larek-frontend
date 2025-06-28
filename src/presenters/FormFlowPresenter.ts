@@ -15,7 +15,8 @@ interface FormFlowPresenterOptions {
 }
 
 export class FormFlowPresenter {
-	constructor(private options: FormFlowPresenterOptions) {}
+	constructor(private options: FormFlowPresenterOptions) {
+	}
 
 	public start(): void {
 		const { orderView, modal, orderService } = this.options;

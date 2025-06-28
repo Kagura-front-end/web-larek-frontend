@@ -11,7 +11,8 @@ export class PreviewPresenter {
 	constructor(
 		private events: EventEmitter,
 		private view: IPreviewView,
-	) {}
+	) {
+	}
 
 	public init(): void {
 		this.events.on<IProductItem>('preview:changed', (item) => {
