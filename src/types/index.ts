@@ -36,6 +36,15 @@ export interface IOrder extends IOrderForm {
 	total: number;
 }
 
+export interface IApiOrder {
+	address: string;
+	email: string;
+	phone: string;
+	payment: PaymentMethod;
+	items: string[];
+	total: number;
+}
+
 export interface IOrderResponse {
 	id: UUID;
 	total: number;
@@ -50,7 +59,7 @@ export interface IAppEvents {
 	'basket:changed': { items: UUID[]; total: number };
 	'preview:changed': IProductItem;
 	'order:ready': IOrder;
-	'order:submit': void;
+	'order:submit': IApiOrder;
 	'order:success': IOrderResponse;
 	'formErrors:change': FormErrors;
 	'contacts:submit': void;

@@ -2,7 +2,7 @@ import { OrderService } from '../models/OrderService';
 import { OrderView } from '../views/OrderView';
 import { EventEmitter } from '../components/base/events';
 import { ModalManager } from './ModalManager';
-import { IOrder, IProductItem, PaymentMethod } from '../types';
+import { IProductItem, PaymentMethod, IApiOrder } from '../types';
 
 interface FormFlowPresenterOptions {
 	orderService: OrderService;
@@ -15,29 +15,18 @@ interface FormFlowPresenterOptions {
 }
 
 export class FormFlowPresenter {
-	constructor(private options: FormFlowPresenterOptions) {
-	}
+	constructor(private options: FormFlowPresenterOptions) {}
 
 	public start(): void {
-		const { orderView, modal, orderService } = this.options;
-
+		const { orderView, modal } = this.options;
 		const content = orderView.render();
 		modal.open(content);
 
 		setTimeout(() => {
 			orderView.setOnSubmit(() => {
-				const order: IOrder = {
-					address: orderService.getAddress(),
-					email: orderService.getEmail(),
-					phone: orderService.getPhone(),
-					payment: orderService.getPayment() as PaymentMethod,
-					items: this.options.basketItems(),
-					total: this.options.getTotal(),
-				};
-
+				const order = this.buildOrder();
 				this.options.events.emit('order:submit', order);
 			});
-
 			this.setupFirstStep();
 		}, 0);
 	}
@@ -108,9 +97,11 @@ export class FormFlowPresenter {
 			const emailError = modalElement.querySelector('.form__errors_email') as HTMLElement;
 			const phoneError = modalElement.querySelector('.form__errors_phone') as HTMLElement;
 
+			if (!emailInput || !phoneInput || !payButton || !emailError || !phoneError) return;
+
 			const updatePayButton = () => {
-				const email = emailInput?.value.trim() || '';
-				const phone = phoneInput?.value.trim() || '';
+				const email = emailInput.value.trim();
+				const phone = phoneInput.value.trim();
 
 				const isValidEmail = email.includes('@') && email.length >= 15 && email.split('@')[1]?.length >= 7;
 				const isValidPhone = /^\+?\d{10,}$/.test(phone);
@@ -127,7 +118,7 @@ export class FormFlowPresenter {
 				}
 
 				const isFormValid = isValidEmail && isValidPhone;
-				if (payButton) payButton.disabled = !isFormValid;
+				payButton.disabled = !isFormValid;
 
 				if (isFormValid) {
 					this.options.orderService.setEmail(email);
@@ -135,12 +126,15 @@ export class FormFlowPresenter {
 				}
 			};
 
-			emailInput?.addEventListener('input', updatePayButton);
-			phoneInput?.addEventListener('input', updatePayButton);
+			emailInput.addEventListener('input', updatePayButton);
+			phoneInput.addEventListener('input', updatePayButton);
 
 			const form = modalElement.querySelector<HTMLFormElement>('form');
 			form?.addEventListener('submit', (e) => {
 				e.preventDefault();
+
+				const order = this.buildOrder();
+				this.options.events.emit('order:submit', order);
 
 				const total = this.options.getTotal();
 				this.options.clearBasket();
@@ -163,5 +157,16 @@ export class FormFlowPresenter {
 				}, 0);
 			});
 		}, 0);
+	}
+
+	private buildOrder(): IApiOrder {
+		return {
+			address: this.options.orderService.getAddress(),
+			email: this.options.orderService.getEmail(),
+			phone: this.options.orderService.getPhone(),
+			payment: this.options.orderService.getPayment() as PaymentMethod,
+			items: this.options.basketItems().map((item: IProductItem) => item.id),
+			total: this.options.getTotal(),
+		};
 	}
 }
